@@ -1,0 +1,114 @@
+{
+  "project_info": {
+    "project_number": "602649121057",
+    "project_id": "areisto-space",
+    "storage_bucket": "areisto-space.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602649121057:android:507deab522b0dc58f6ee60",
+        "android_client_info": {
+          "package_name": "gaza.aristospace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602649121057-80ucft1resti0b79d6q8useq45kfq2ni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gaza.aristospace",
+            "certificate_hash": "59ea5c56e4d6a5e32d5fd6d5a1dfbfd39c0b9e91"
+          }
+        },
+        {
+          "client_id": "602649121057-fgpude3j7lnmnrhkkqp8vnb187hen9v2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gaza.aristospace",
+            "certificate_hash": "d5c9a29366481c59ff602553fa051ff0e5743241"
+          }
+        },
+        {
+          "client_id": "602649121057-g6h49ncl2gv5fb2m8q16tv1u3dncsiuh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBd_0LFiz0s3bRfz5G8qkavtT_4tF_k8o4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602649121057-g6h49ncl2gv5fb2m8q16tv1u3dncsiuh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602649121057-jg4cph6i64k986br4qklfc93shbf4bdt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "gaza.aristospace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602649121057:android:c905bb9ecf1de626f6ee60",
+        "android_client_info": {
+          "package_name": "gaza.aristospace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602649121057-5na0tjak9176udkcvr714lcl2gl8qarl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gaza.aristospace",
+            "certificate_hash": "d5c9a29366481c59ff602553fa051ff0e5743241"
+          }
+        },
+        {
+          "client_id": "602649121057-ulbjsib6p5l9in595fcajbl56m9o252d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gaza.aristospace",
+            "certificate_hash": "59ea5c56e4d6a5e32d5fd6d5a1dfbfd39c0b9e91"
+          }
+        },
+        {
+          "client_id": "602649121057-g6h49ncl2gv5fb2m8q16tv1u3dncsiuh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBd_0LFiz0s3bRfz5G8qkavtT_4tF_k8o4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602649121057-g6h49ncl2gv5fb2m8q16tv1u3dncsiuh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602649121057-jg4cph6i64k986br4qklfc93shbf4bdt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "gaza.aristospace"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

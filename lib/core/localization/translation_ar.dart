@@ -1,0 +1,25 @@
+
+const Map<String, String> arEG = {
+  'login': 'تسجيل دخول',
+  'Welcome_back': 'مرحبًا بك مرة أخرى !',
+  'email': 'البريد الالكتروني',
+  'password' : 'كلمة المرور',
+  'remember' : 'تذكرني',
+  'forgot_password' : 'نسيت كلمة المرور ؟',
+  'or' : 'او',
+  'continue_with_google' : 'الاستمرار بجوجل',
+  'dont_Have_An_account' : 'ليس لديك حساب؟',
+  'sign_up_now' : 'سجّل الان!',
+  'do_you_have_an_account' : 'لديك حساب؟',
+  'full_name' : 'الاسم كامل',
+  'sction' : 'القسم',
+  'phone_number' : 'رقم الهاتف',
+  'confirm_password' : 'تأكيد كلمة المرور',
+  'register_new_user' : 'تسجيل مستخدم جديد',
+  'sent_code' : 'الكود المرسل',
+  'code_sent_email' :  'قم بادخال الكود المرسل على الايميل الخاص بك',
+  'verification_code' : 'الرمز المرسل',
+  'resend_code' :'اعادة ارسال',
+  'check' : 'تحقق',
+
+};
