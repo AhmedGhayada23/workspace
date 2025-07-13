@@ -7,7 +7,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:workspace/features/details_space/data/model/details_space_model.dart'; // استيراد animate_do
 
 class ReviewsWidget extends StatelessWidget {
-final  List<Evaluations> evaluations;
+final List<CustomerRatingAverages> evaluations;
   const ReviewsWidget({super.key,required this.evaluations});
 
   @override
@@ -38,7 +38,7 @@ final  List<Evaluations> evaluations;
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: NetworkImage(
-                          evaluations[index].customer?.imageUrl  ??
+                          evaluations[index].imageUrl ??
                           'https://th.bing.com/th/id/OIP.EFG_2_FQ5ZK0eep1vVQ6fwHaHa?rs=1&pid=ImgDetMain',
                         ), // أو NetworkImage إذا كانت صورة من الإنترنت
                         fit: BoxFit.cover,
@@ -49,7 +49,7 @@ final  List<Evaluations> evaluations;
                     ),
                   ),
                   title: Text(
-                     evaluations[index].customer?.user?.name ?? '',
+                    evaluations[index].name ?? '',
                     textAlign: TextAlign.right,
                     style: GoogleFonts.tajawal(
                       fontSize: 14.sp,
@@ -58,7 +58,7 @@ final  List<Evaluations> evaluations;
                     ),
                   ),
                   subtitle: Text(
-                    'عضو منذ ${evaluations[index].customer?.createdAt?.split(' ').first}',
+                    'عضو منذ ${evaluations[index].createdAt?.split(' ').first}',
                     textAlign: TextAlign.right,
                     style: GoogleFonts.tajawal(
                       fontSize: 12.sp,
@@ -79,7 +79,12 @@ final  List<Evaluations> evaluations;
                   ),
                 ),
                 SizedBox(height: 8.h),
-                Row(children: List.generate(int.parse(evaluations[index].value!), (i) => SvgPicture.asset(AppSvg.starSvg))),
+                Row(
+                  children: List.generate(
+                    (evaluations[index].average ?? 0).floor(),
+                    (i) => SvgPicture.asset(AppSvg.starSvg),
+                  ),
+                ),
                 SizedBox(height: 8.h),
                 Text(
                  evaluations[index].message ?? '',

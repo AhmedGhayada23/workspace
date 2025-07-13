@@ -556,15 +556,17 @@ class DetailsSpaceView extends GetView<DetailsSpaceController> {
                                               .value!
                                               .data!
                                               .spaces!
-                                              .evaluations!
-                                              .isNotEmpty ?
+                                        .customerRatingAverages!.isNotEmpty
+                                    ?
 
                                    ReviewsWidget(evaluations: controller
                                               .listDetailsSpacesData
                                               .value!
                                               .data!
                                               .spaces!
-                                              .evaluations ?? [])    : NoResult(
+                                              .customerRatingAverages ??
+                                            [])
+                                    : NoResult(
                                                  text: 'هذه المساحة لا تحتوي على تقييمات في الوقت الحالي',
                                               ),
                                 );
