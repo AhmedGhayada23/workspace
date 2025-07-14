@@ -35,7 +35,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
                   children: [
                     FadeInLeft(
                       child: IconButton(
-                        onPressed: () => Get.back(),
+                        onPressed: () => Get.offNamed(AppRouting.signInView),
                         icon: Icon(Icons.arrow_back_rounded, color: AppColors.white, size: 24.r),
                       ),
                     ),

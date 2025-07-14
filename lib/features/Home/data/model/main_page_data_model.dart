@@ -84,7 +84,7 @@ class NewSpaces {
   int? videoId;
   List<String>? imagesUrl;
   int? ratingCount;
-  int? ratingAverage;
+  dynamic ratingAverage;
   Company? company;
   List<dynamic>? evaluations;
   List<dynamic>? rooms;
@@ -152,9 +152,9 @@ class NewSpaces {
     if(json["rating_count"] is int) {
       ratingCount = json["rating_count"];
     }
-    if(json["rating_average"] is int) {
-      ratingAverage = json["rating_average"];
-    }
+
+    ratingAverage = json["rating_average"] ?? '';
+
     if(json["company"] is Map) {
       company = json["company"] == null ? null : Company.fromJson(json["company"]);
     }
@@ -245,7 +245,7 @@ class SuggestSpaces{
   int? videoId;
   List<String>? imagesUrl;
   int? ratingCount;
-  int? ratingAverage;
+  dynamic ratingAverage;
   Company? company;
   List<dynamic>? evaluations;
   List<dynamic>? rooms;
@@ -311,9 +311,9 @@ class SuggestSpaces{
     if(json["rating_count"] is int) {
       ratingCount = json["rating_count"];
     }
-    if(json["rating_average"] is int) {
-      ratingAverage = json["rating_average"];
-    }
+
+    ratingAverage = json["rating_average"] ?? '';
+
     if(json["company"] is Map) {
       company = json["company"] == null ? null : Company.fromJson(json["company"]);
     }

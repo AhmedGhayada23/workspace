@@ -2,19 +2,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/features/details_space/presentation/views/details_space_view.dart';
-import 'package:workspace/utils/routing.dart';
+
 
 class AllItemSpaceWidget extends StatelessWidget {
   final String image;
   final String typeTitle;
   final String nameCompany;
   final String ratingCount;
-  final String ratingAverage;
+  final dynamic ratingAverage;
   final String address;
   final String available;
   final String mobile;
@@ -125,7 +123,7 @@ class AllItemSpaceWidget extends StatelessWidget {
                     baseline: 14.sp,
                     baselineType: TextBaseline.alphabetic,
                     child: Text(
-                      ratingCount,
+                      ratingAverage,
                       style: GoogleFonts.tajawal(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
@@ -138,7 +136,7 @@ class AllItemSpaceWidget extends StatelessWidget {
                     baseline: 12.sp,
                     baselineType: TextBaseline.alphabetic,
                     child: Text(
-                      '($ratingAverage مقيم)',
+                      '($ratingCount مقيم)',
                       style: GoogleFonts.tajawal(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400,

@@ -16,7 +16,7 @@ class ItemSpaceWidget extends StatelessWidget {
   final String typeTitle;
   final String nameCompany;
   final String ratingCount;
-  final String ratingAverage;
+  final dynamic ratingAverage;
   final String address;
   final String available;
   final String mobile;
@@ -131,7 +131,7 @@ class ItemSpaceWidget extends StatelessWidget {
       baseline: 14.sp,
       baselineType: TextBaseline.alphabetic,
       child: Text(
-        ratingCount,
+                    ratingAverage,
         style: GoogleFonts.tajawal(
           fontSize: 14.sp,
           fontWeight: FontWeight.w400,
@@ -146,7 +146,7 @@ class ItemSpaceWidget extends StatelessWidget {
       baseline: 12.sp,
       baselineType: TextBaseline.alphabetic,
       child: Text(
-        '($ratingAverage مقيم)',
+                    '($ratingCount مقيم)',
         style: GoogleFonts.tajawal(
           fontSize: 12.sp,
           fontWeight: FontWeight.w400,
