@@ -103,7 +103,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'لمحة عني',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF32B599),
                     ),
@@ -128,7 +128,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'معلومات شخصية',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF32B599),
                     ),
@@ -141,9 +141,9 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'الجنس',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -242,9 +242,9 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'تاريخ الميلاد',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                        fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -295,9 +295,9 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'العمر',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                        fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -321,7 +321,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'التعليم',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                            fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF32B599),
                     ),
@@ -334,9 +334,9 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'الجامعة',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                              fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -356,11 +356,11 @@ class EditProfileView extends GetView<EditProfileController> {
                   delay: Duration(milliseconds: 300 + 13 * 100),
 
                   child: Text(
-                    'النخصص',
+                          'التخصص',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                              fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -382,9 +382,9 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'الرقم الجامعي',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                              fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF9E9E9E),
+                      color: Colors.black
                     ),
                   ),
                 ),
@@ -409,7 +409,7 @@ class EditProfileView extends GetView<EditProfileController> {
                   child: Text(
                     'المستندات المطلوبة ',
                     style: GoogleFonts.tajawal(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF32B599),
                     ),
@@ -449,7 +449,7 @@ class EditProfileView extends GetView<EditProfileController> {
                               'ارفق المستندات المطلوبة',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.tajawal(
-                                fontSize: 12.sp,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w400,
                                 color: Color(0xFF32B599),
                                 height: 1.4,

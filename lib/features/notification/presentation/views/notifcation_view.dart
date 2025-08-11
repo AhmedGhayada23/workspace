@@ -96,6 +96,19 @@ class NotifcationView extends GetView<NotifcationController> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 4.h),
+                      FadeInUp(
+                        duration: Duration(milliseconds: 700),
+                        child: Text(
+                          notification.body ?? '',
+                          style: GoogleFonts.tajawal(
+                            color: Color(0xFF757575),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
                       SizedBox(height: 8.h),
 
                       FadeInUp(

@@ -163,6 +163,7 @@ class SignUpController extends GetxController {
       );
 
       if (_isSuccessfulResponse(response)) {
+        LocalStorage().writeValue(Constants.userType, 'normal');
         // حفظ التوكن
         final localStorage = LocalStorage();
         await localStorage.writeValue(

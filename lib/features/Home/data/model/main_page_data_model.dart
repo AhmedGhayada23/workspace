@@ -85,6 +85,7 @@ class NewSpaces {
   List<String>? imagesUrl;
   int? ratingCount;
   dynamic ratingAverage;
+  dynamic customerRatingCount;
   Company? company;
   List<dynamic>? evaluations;
   List<dynamic>? rooms;
@@ -94,7 +95,33 @@ class NewSpaces {
 
   NewSpaces({
 
-    this.id, this.companyId, this.provinceId, this.content, this.availableFrom, this.availableTo, this.email, this.mobile, this.address, this.roomsCount, this.seatsCount, this.customersCount, this.createdAt, this.deletedAt, this.mainImageUrl, this.videoUrl, this.videoId, this.imagesUrl, this.ratingCount, this.ratingAverage, this.company, this.evaluations, this.rooms, this.intervals, this.subscriptions, this.province});
+    this.id,
+      this.companyId,
+      this.provinceId,
+      this.content,
+      this.availableFrom,
+      this.availableTo,
+      this.email,
+      this.mobile,
+      this.address,
+      this.roomsCount,
+      this.seatsCount,
+      this.customersCount,
+      this.createdAt,
+      this.deletedAt,
+      this.mainImageUrl,
+      this.videoUrl,
+      this.videoId,
+      this.imagesUrl,
+      this.ratingCount,
+      this.ratingAverage,
+      this.customerRatingCount,
+      this.company,
+      this.evaluations,
+      this.rooms,
+      this.intervals,
+      this.subscriptions,
+      this.province});
 
   NewSpaces.fromJson(Map<String, dynamic> json) {
     if(json["id"] is int) {
@@ -154,6 +181,7 @@ class NewSpaces {
     }
 
     ratingAverage = json["rating_average"] ?? '';
+    customerRatingCount = json["customer_rating_count"] ?? '';
 
     if(json["company"] is Map) {
       company = json["company"] == null ? null : Company.fromJson(json["company"]);
@@ -203,6 +231,7 @@ class NewSpaces {
     }
     data["rating_count"] = ratingCount;
     data["rating_average"] = ratingAverage;
+    data["customer_rating_count"] = customerRatingCount;
     if(company != null) {
       data["company"] = company?.toJson();
     }
@@ -246,6 +275,7 @@ class SuggestSpaces{
   List<String>? imagesUrl;
   int? ratingCount;
   dynamic ratingAverage;
+  dynamic customerRatingCount;
   Company? company;
   List<dynamic>? evaluations;
   List<dynamic>? rooms;
@@ -253,7 +283,34 @@ class SuggestSpaces{
   List<dynamic>? subscriptions;
   Province? province;
 
-  SuggestSpaces({this.id, this.companyId, this.provinceId, this.content, this.availableFrom, this.availableTo, this.email, this.mobile, this.address, this.roomsCount, this.seatsCount, this.customersCount, this.createdAt, this.deletedAt, this.mainImageUrl, this.videoUrl, this.videoId, this.imagesUrl, this.ratingCount, this.ratingAverage, this.company, this.evaluations, this.rooms, this.intervals, this.subscriptions, this.province});
+  SuggestSpaces(
+      {this.id,
+      this.companyId,
+      this.provinceId,
+      this.content,
+      this.availableFrom,
+      this.availableTo,
+      this.email,
+      this.mobile,
+      this.address,
+      this.roomsCount,
+      this.seatsCount,
+      this.customersCount,
+      this.createdAt,
+      this.deletedAt,
+      this.mainImageUrl,
+      this.videoUrl,
+      this.videoId,
+      this.imagesUrl,
+      this.ratingCount,
+      this.ratingAverage,
+      this.customerRatingCount,
+      this.company,
+      this.evaluations,
+      this.rooms,
+      this.intervals,
+      this.subscriptions,
+      this.province});
 
   SuggestSpaces.fromJson(Map<String, dynamic> json) {
     if(json["id"] is int) {
@@ -313,6 +370,7 @@ class SuggestSpaces{
     }
 
     ratingAverage = json["rating_average"] ?? '';
+    customerRatingCount = json["customer_rating_count"] ?? '';
 
     if(json["company"] is Map) {
       company = json["company"] == null ? null : Company.fromJson(json["company"]);
@@ -362,6 +420,7 @@ class SuggestSpaces{
     }
     data["rating_count"] = ratingCount;
     data["rating_average"] = ratingAverage;
+    data["customer_rating_count"] = customerRatingCount;
     if(company != null) {
       data["company"] = company?.toJson();
     }

@@ -95,7 +95,7 @@ class InformationAboutSpaceWidget extends StatelessWidget {
                      baseline: 14.r,
               baselineType: TextBaseline.alphabetic,
                 child: Text(
-                  ratingCount,
+                  ratingAverage,
                   style: GoogleFonts.tajawal(
                     color: const Color(0xFF171725),
                     fontSize: 14.sp,
@@ -108,7 +108,7 @@ class InformationAboutSpaceWidget extends StatelessWidget {
               baseline: 12.r,
               baselineType: TextBaseline.alphabetic,
               child: Text(
-                '($ratingAverage مقيم)',
+                '($ratingCount مقيم)',
                 style: GoogleFonts.tajawal(
                   color: const Color(0xFF66707A),
                   fontSize: 12.sp,

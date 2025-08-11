@@ -196,7 +196,8 @@ class HomeView extends GetView<HomeController> {
               typeTitle: controller.listNewSpacesData[index].company?.typeTitle ?? '-',
               image: controller.listNewSpacesData[index].mainImageUrl ?? '',
               nameCompany: controller.listNewSpacesData[index].company?.name ?? '-',
-              ratingCount:  '${controller.listNewSpacesData[index].ratingCount ?? '0'}',
+                                          ratingCount:
+                                              '${controller.listNewSpacesData[index].customerRatingCount ?? '0'}',
               ratingAverage: '${controller.listNewSpacesData[index].ratingAverage ?? '0'}',
               address: controller.listNewSpacesData[index].address ?? '-',
               available: '${controller.formatTime(controller.listNewSpacesData[index].availableFrom)} - ${controller.formatTime(controller.listNewSpacesData[index].availableTo)}',
@@ -260,7 +261,8 @@ class HomeView extends GetView<HomeController> {
                typeTitle: controller.listsuggestSpacesData[index].company?.typeTitle ?? '-',
               image: controller.listsuggestSpacesData[index].mainImageUrl ?? '',
               nameCompany: controller.listsuggestSpacesData[index].company?.name ?? '-',
-              ratingCount:  '${controller.listsuggestSpacesData[index].ratingCount ?? '0'}',
+                                          ratingCount:
+                                              '${controller.listsuggestSpacesData[index].customerRatingCount ?? '0'}',
               ratingAverage: '${controller.listsuggestSpacesData[index].ratingAverage ?? '0'}',
               address: controller.listsuggestSpacesData[index].address ?? '-',
               available: '${controller.formatTime(controller.listsuggestSpacesData[index].availableFrom)} - ${controller.formatTime(controller.listsuggestSpacesData[index].availableTo)}',

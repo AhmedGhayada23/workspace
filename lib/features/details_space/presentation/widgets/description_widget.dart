@@ -12,9 +12,11 @@ import 'package:workspace/utils/routing.dart';
 
 class DescriptionWidget extends StatelessWidget {
   final String? text;
- final  List<SuggestSpaces> suggestSpaces;
-  const DescriptionWidget({this.text, super.key,
-  required this.suggestSpaces,
+  final List<SuggestSpaces> suggestSpaces;
+  const DescriptionWidget({
+    this.text,
+    super.key,
+    required this.suggestSpaces,
   });
 
   @override
@@ -44,7 +46,6 @@ class DescriptionWidget extends StatelessWidget {
             style: {
               "p": Style(
                 fontFamily: GoogleFonts.tajawal().fontFamily,
-
                 fontSize: FontSize(16.0.sp),
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF212121),
@@ -67,53 +68,56 @@ class DescriptionWidget extends StatelessWidget {
         SizedBox(height: suggestSpaces.isNotEmpty ? 8.h : 0.h),
 
         // Animated section title
-      suggestSpaces.isNotEmpty ?   SlideInUp(
-          duration: Duration(milliseconds: 700),
-          child: Text(
-            'المساحات المقترحة',
-            style: GoogleFonts.tajawal(
-              color: const Color(0xFF212121),
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ):SizedBox.shrink(),
-        SizedBox(height:suggestSpaces.isNotEmpty ? 24.h : 0.h),
+        suggestSpaces.isNotEmpty
+            ? SlideInUp(
+                duration: Duration(milliseconds: 700),
+                child: Text(
+                  'المساحات المقترحة',
+                  style: GoogleFonts.tajawal(
+                    color: const Color(0xFF212121),
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              )
+            : SizedBox.shrink(),
+        SizedBox(height: suggestSpaces.isNotEmpty ? 24.h : 0.h),
 
         // Animated widget for AllItemSpaceWidget
 
-
         ListView.separated(
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) =>  SlideInUp(
-          duration: Duration(milliseconds: 800),
-          child: AllItemSpaceWidget(
-            onTap: ()=>Get.offNamedUntil(
-  AppRouting.detailsView,
-  (route) => route.settings.name == AppRouting.btnNavView,
-  arguments: suggestSpaces[index].id!,
-),
-            id: suggestSpaces[index].id!,
-            address: suggestSpaces[index].address ?? '',
-            available:'${formatTime(suggestSpaces[index].availableFrom)} - ${formatTime(suggestSpaces[index].availableTo)}',
-            email: suggestSpaces[index].email ?? '',
-            image: suggestSpaces[index].mainImageUrl ?? '',
-            mobile: suggestSpaces[index].mobile ?? '',
-            nameCompany: suggestSpaces[index].company?.name ?? '',
-            ratingAverage: '${suggestSpaces[index].ratingAverage ?? '0'}',
-            ratingCount: '${suggestSpaces[index].ratingCount ?? '0'}',
-            typeTitle:   suggestSpaces[index].company?.typeTitle ?? '-',
-          ),
-        ),
-          separatorBuilder: (context, index) => SizedBox(height: 8.h,),
-          itemCount: suggestSpaces.length),
-
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) => SlideInUp(
+                  duration: Duration(milliseconds: 800),
+                  child: AllItemSpaceWidget(
+                    onTap: () => Get.offNamedUntil(
+                      AppRouting.detailsView,
+                      (route) => route.settings.name == AppRouting.btnNavView,
+                      arguments: suggestSpaces[index].id!,
+                    ),
+                    id: suggestSpaces[index].id!,
+                    address: suggestSpaces[index].address ?? '',
+                    available:
+                        '${formatTime(suggestSpaces[index].availableFrom)} - ${formatTime(suggestSpaces[index].availableTo)}',
+                    email: suggestSpaces[index].email ?? '',
+                    image: suggestSpaces[index].mainImageUrl ?? '',
+                    mobile: suggestSpaces[index].mobile ?? '',
+                    nameCompany: suggestSpaces[index].company?.name ?? '',
+                    ratingAverage: '${suggestSpaces[index].ratingAverage ?? '0'}',
+                    ratingCount: '${suggestSpaces[index].ratingCount ?? '0'}',
+                    typeTitle: suggestSpaces[index].company?.typeTitle ?? '-',
+                  ),
+                ),
+            separatorBuilder: (context, index) => SizedBox(
+                  height: 8.h,
+                ),
+            itemCount: suggestSpaces.length),
       ],
     );
   }
 
-    String formatTime(String? timeStr) {
+  String formatTime(String? timeStr) {
     if (timeStr == null || timeStr.isEmpty) return '---';
 
     try {

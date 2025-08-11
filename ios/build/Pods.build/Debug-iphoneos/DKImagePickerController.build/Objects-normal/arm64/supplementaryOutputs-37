@@ -1,0 +1,18 @@
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKImagePickerController/Sources/DKImagePickerController/DKImageAssetExporter.swift":
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageAssetExporter.swiftdeps"
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageAssetExporter.dia"
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageAssetExporter.swiftconstvalues"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageAssetExporter.d"
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageAssetExporter.o"
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKImagePickerController/Sources/DKImageDataManager/DKImageBaseManager.swift":
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageBaseManager.swiftconstvalues"
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageBaseManager.dia"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageBaseManager.d"
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageBaseManager.o"
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageBaseManager.swiftdeps"
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKImagePickerController/Sources/DKImageDataManager/DKImageDataManager.swift":
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageDataManager.dia"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageDataManager.d"
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageDataManager.o"
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageDataManager.swiftconstvalues"
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKImagePickerController.build/Objects-normal/arm64/DKImageDataManager.swiftdeps"

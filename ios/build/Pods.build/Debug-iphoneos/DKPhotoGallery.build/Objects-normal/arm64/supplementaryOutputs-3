@@ -1,0 +1,18 @@
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKPhotoGallery/DKPhotoGallery/Resource/DKPhotoGalleryResource.swift":
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryResource.o"
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryResource.swiftconstvalues"
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryResource.swiftdeps"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryResource.d"
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryResource.dia"
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKPhotoGallery/DKPhotoGallery/Transition/DKPhotoGalleryTransitionController.swift":
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryTransitionController.swiftconstvalues"
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryTransitionController.o"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryTransitionController.d"
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryTransitionController.dia"
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryTransitionController.swiftdeps"
+"/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/Pods/DKPhotoGallery/DKPhotoGallery/DKPhotoGalleryScrollView.swift":
+  swift-dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryScrollView.swiftdeps"
+  dependencies: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryScrollView.d"
+  object: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryScrollView.o"
+  const-values: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryScrollView.swiftconstvalues"
+  diagnostics: "/Users/ramigh/AndroidStudioProjects/Areisto-space-flutter-app-aristo_space/ios/build/Pods.build/Debug-iphoneos/DKPhotoGallery.build/Objects-normal/arm64/DKPhotoGalleryScrollView.dia"

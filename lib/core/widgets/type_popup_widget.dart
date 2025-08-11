@@ -9,7 +9,10 @@ import 'package:workspace/features/auth/controllers/sign_in_controller.dart';
 import 'package:workspace/features/auth/controllers/sign_up_controller.dart';
 import 'package:workspace/utils/validators.dart';
 
-void showCustomPopup(BuildContext context, Function()? onTap,) {
+void showCustomPopup(
+  BuildContext context,
+  Function()? onTap,
+) {
   final Map<String, String> userTypes = {
     'طالب': 'student',
     'موظف': 'employee',
@@ -53,7 +56,6 @@ void showCustomPopup(BuildContext context, Function()? onTap,) {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.tajawal(
                   color: Color(0xFF7A7A7A),
-
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
                   fontStyle: FontStyle.normal,
@@ -61,7 +63,6 @@ void showCustomPopup(BuildContext context, Function()? onTap,) {
                 ),
               ),
               SizedBox(height: 24.h),
-
               ...animatedDropdown(
                 1,
                 null,
@@ -70,14 +71,16 @@ void showCustomPopup(BuildContext context, Function()? onTap,) {
                 (value) {
                   userTypes[value]!; // تخزين القيمة الإنجليزية
                   log('user type :: ${userTypes[value]!}');
-                  Get.find<SignInController>().userType.value = userTypes[value]!;
-                  Get.find<SignUpController>().userType.value = userTypes[value]!;
+                  final signInController = Get.put(SignInController());
+                  final signUpController = Get.put(SignUpController());
 
+                  signInController.userType.value = userTypes[value]!;
+                  signUpController.userType.value = userTypes[value]!;
                 },
               ),
               SizedBox(height: 24.h),
               InkWell(
-                onTap : onTap,
+                onTap: onTap,
                 child: Container(
                   height: 44.h,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -90,7 +93,6 @@ void showCustomPopup(BuildContext context, Function()? onTap,) {
                     "تاكيد", // غير النص حسب الحاجة
                     style: GoogleFonts.tajawal(
                       color: Colors.white,
-
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),

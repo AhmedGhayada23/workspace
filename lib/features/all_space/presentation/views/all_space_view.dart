@@ -159,8 +159,9 @@ class AllSpaceView extends GetView<AllSpaceController> {
                     mobile: item.mobile ?? '-',
                     nameCompany: item.company?.name ?? '-',
                     ratingAverage: '${item.ratingAverage ?? '0'}',
-                    ratingCount: '${item.ratingCount ?? '0'}',
+                    ratingCount: '${item.customerRatingCount ?? '0'}',
                     typeTitle: item.company?.typeTitle ?? '-',
+                    onTap: () => Get.toNamed(AppRouting.detailsView, arguments: item.id!),
                   ),
                 );
               },

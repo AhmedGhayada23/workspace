@@ -394,7 +394,7 @@ class DetailsSpaceView extends GetView<DetailsSpaceController> {
                                   ?.typeTitle ??
                               '-',
                           ratingCount:
-                              '${controller.listDetailsSpacesData.value?.data?.spaces?.ratingCount ?? '0'}',
+                            '${controller.listDetailsSpacesData.value?.data?.spaces?.customerRatingAverages?.length ?? '0'}',
                           ratingAverage:
                               '${controller.listDetailsSpacesData.value?.data?.spaces?.ratingAverage ?? '0'}',
                           address:

@@ -40,7 +40,7 @@ class EditProfileController extends GetxController {
 
     aboutMeEditProfileTextEditingController = TextEditingController(text: customer?.aboutMe);
     ageEditProfileTextEditingController = TextEditingController(
-      text: '${customer?.age != 'null' ? customer?.age : ''}',
+      text: customer?.age?.toString() ?? '',
     );
     universityEditProfileTextEditingController = TextEditingController(
       text: customer?.university ?? '',
