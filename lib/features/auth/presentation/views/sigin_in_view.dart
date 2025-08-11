@@ -136,20 +136,20 @@ class SiginInView extends GetView<SignInController> {
                                       ),
                                     ),
                           ),
-                          SizedBox(height: 16.h),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 600),
-                            delay: Duration(milliseconds: 900),
-                            child: OrDividerWidget(),
-                          ),
-                          SizedBox(height: 16.h),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 600),
-                            delay: Duration(milliseconds: 1000),
-                            child: ButtonWithGoogleWidget(
-                              onTap: () => controller.signInWithGoogle(),
-                            ),
-                          ),
+                          // SizedBox(height: 16.h),
+                          // FadeInUp(
+                          //   duration: Duration(milliseconds: 600),
+                          //   delay: Duration(milliseconds: 900),
+                          //   child: OrDividerWidget(),
+                          // ),
+                          // SizedBox(height: 16.h),
+                          // FadeInUp(
+                          //   duration: Duration(milliseconds: 600),
+                          //   delay: Duration(milliseconds: 1000),
+                          //   child: ButtonWithGoogleWidget(
+                          //     onTap: () => controller.signInWithGoogle(),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

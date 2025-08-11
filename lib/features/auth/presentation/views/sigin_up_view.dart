@@ -172,19 +172,19 @@ class SiginUpView extends GetView<SignUpController> {
                                       ),
                                     ),
                           ),
-                          FadeInUp(
-                            delay: Duration(milliseconds: 700),
-                            duration: Duration(milliseconds: 600),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.h),
-                              child: OrDividerWidget(),
-                            ),
-                          ),
-                          FadeInUp(
-                            delay: Duration(milliseconds: 800),
-                            duration: Duration(milliseconds: 600),
-                            child: ButtonWithGoogleWidget(onTap: ()=> controller.signInWithGoogle()),
-                          ),
+                          // FadeInUp(
+                          //   delay: Duration(milliseconds: 700),
+                          //   duration: Duration(milliseconds: 600),
+                          //   child: Padding(
+                          //     padding: EdgeInsets.symmetric(vertical: 8.h),
+                          //     child: OrDividerWidget(),
+                          //   ),
+                          // ),
+                          // FadeInUp(
+                          //   delay: Duration(milliseconds: 800),
+                          //   duration: Duration(milliseconds: 600),
+                          //   child: ButtonWithGoogleWidget(onTap: ()=> controller.signInWithGoogle()),
+                          // ),
                         ],
                       ),
                     ),
