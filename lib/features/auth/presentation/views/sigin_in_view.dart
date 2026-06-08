@@ -69,7 +69,8 @@ class SiginInView extends GetView<SignInController> {
                     ),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,20 +91,19 @@ class SiginInView extends GetView<SignInController> {
                                   controller.emailSignInTextEditingController,
                                   Validators.email,
                                 ),
-
                                 _animatedPasswordField(
                                   2,
                                   'password'.tr,
                                   [AutofillHints.password],
                                   TextInputAction.done,
-                                  controller.passwordSignInTextEditingController,
-                                  (value) =>
-                                      Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
+                                  controller
+                                      .passwordSignInTextEditingController,
+                                  (value) => Validators.minLength(value, 6,
+                                      fieldName: 'كلمة المرور'),
                                 ),
                               ],
                             ),
                           ),
-
                           SizedBox(height: 16.h),
                           FadeInUp(
                             duration: Duration(milliseconds: 600),
@@ -115,41 +115,41 @@ class SiginInView extends GetView<SignInController> {
                                   controller.isChecked.value = value!;
                                   controller.loginRemembar();
                                 },
-                                onForgotPassword: () => Get.offNamed(AppRouting.resetPasswordView),
+                                onForgotPassword: () =>
+                                    Get.offNamed(AppRouting.resetPasswordView),
                               ),
                             ),
                           ),
                           SizedBox(height: 16.h),
-
                           Obx(
-                            () =>
-                                controller.loading.isTrue
-                                    ? Center(
-                                      child: CircularProgressIndicator(color: AppColors.primary),
-                                    )
-                                    : FadeInUp(
-                                      duration: Duration(milliseconds: 600),
-                                      delay: Duration(milliseconds: 800),
-                                      child: ButtonLoginWidget(
-                                        text: 'login'.tr,
-                                        onTap: () => controller.submitSignIn(),
-                                      ),
+                            () => controller.loading.isTrue
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.primary),
+                                  )
+                                : FadeInUp(
+                                    duration: Duration(milliseconds: 600),
+                                    delay: Duration(milliseconds: 800),
+                                    child: ButtonLoginWidget(
+                                      text: 'login'.tr,
+                                      onTap: () => controller.submitSignIn(),
                                     ),
+                                  ),
                           ),
-                          // SizedBox(height: 16.h),
-                          // FadeInUp(
-                          //   duration: Duration(milliseconds: 600),
-                          //   delay: Duration(milliseconds: 900),
-                          //   child: OrDividerWidget(),
-                          // ),
-                          // SizedBox(height: 16.h),
-                          // FadeInUp(
-                          //   duration: Duration(milliseconds: 600),
-                          //   delay: Duration(milliseconds: 1000),
-                          //   child: ButtonWithGoogleWidget(
-                          //     onTap: () => controller.signInWithGoogle(),
-                          //   ),
-                          // ),
+                          SizedBox(height: 16.h),
+                          FadeInUp(
+                            duration: Duration(milliseconds: 600),
+                            delay: Duration(milliseconds: 900),
+                            child: OrDividerWidget(),
+                          ),
+                          SizedBox(height: 16.h),
+                          FadeInUp(
+                            duration: Duration(milliseconds: 600),
+                            delay: Duration(milliseconds: 1000),
+                            child: ButtonWithGoogleWidget(
+                              onTap: () => controller.signInWithGoogle(),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -193,15 +193,14 @@ class SiginInView extends GetView<SignInController> {
               textInputAction: textInputAction,
               validator: validator,
               suffixIcon: IconButton(
-                icon:
-                     SvgPicture.asset(
-                       controller.obscureText.value
-                        ?   AppSvg.eyeslashSvg : AppSvg.eyeSvg,
-                          color: Color(0xFF757575),
-                          width: 24.w,
-                          height: 24.h,
-                        ),
-
+                icon: SvgPicture.asset(
+                  controller.obscureText.value
+                      ? AppSvg.eyeslashSvg
+                      : AppSvg.eyeSvg,
+                  color: Color(0xFF757575),
+                  width: 24.w,
+                  height: 24.h,
+                ),
                 onPressed: () {
                   controller.obscureText.value = !controller.obscureText.value;
                 },

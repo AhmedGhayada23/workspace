@@ -35,7 +35,8 @@ class SiginUpView extends GetView<SignUpController> {
               SizedBox(height: 32.h),
               FadeInDown(
                 duration: Duration(milliseconds: 600),
-                child: Center(child: Center(child: Image.asset(AppImage.logoImage))),
+                child: Center(
+                    child: Center(child: Image.asset(AppImage.logoImage))),
               ),
               SizedBox(height: 24.h),
               FadeInDown(
@@ -69,7 +70,8 @@ class SiginUpView extends GetView<SignUpController> {
                     ),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,22 +89,26 @@ class SiginUpView extends GetView<SignUpController> {
                                   [AutofillHints.name],
                                   TextInputAction.go,
                                   null,
-                                  controller.fullNameRegisterTextEditingController,
-                                  (value) => Validators.required(value, fieldName: 'الاسم'),
+                                  controller
+                                      .fullNameRegisterTextEditingController,
+                                  (value) => Validators.required(value,
+                                      fieldName: 'الاسم'),
                                 ),
                                 ...animatedDropdown(
                                   1,
                                   null,
-                                  controller.userTypes.keys.toList(), // عرض القيم العربية
+                                  controller.userTypes.keys
+                                      .toList(), // عرض القيم العربية
                                   (value) => Validators.required(value),
                                   (value) {
-                                    FocusScope.of(context).requestFocus(controller.nextFieldFocus);
+                                    FocusScope.of(context).requestFocus(
+                                        controller.nextFieldFocus);
                                     controller.types.value =
-                                        controller.userTypes[value]!; // تخزين القيمة الإنجليزية
+                                        controller.userTypes[
+                                            value]!; // تخزين القيمة الإنجليزية
                                     log('user type :: ${controller.userTypes[value]!}');
                                   },
                                 ),
-
                                 ...animatedField(
                                   2,
                                   'phone_number'.tr,
@@ -132,59 +138,64 @@ class SiginUpView extends GetView<SignUpController> {
                                   'password'.tr,
                                   [AutofillHints.password],
                                   TextInputAction.next,
-                                  controller.passwordRegisterTextEditingController,
+                                  controller
+                                      .passwordRegisterTextEditingController,
                                   controller.obscureTextpassword,
-                                  (value) =>
-                                      Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
+                                  (value) => Validators.minLength(value, 6,
+                                      fieldName: 'كلمة المرور'),
                                 ),
                                 _animatedPasswordField(
                                   5,
                                   'confirm_password'.tr,
                                   null,
                                   TextInputAction.done,
-                                  controller.confirmRegisterTextEditingController,
+                                  controller
+                                      .confirmRegisterTextEditingController,
                                   controller.obscureTextconfirmpassword,
                                   (value) => Validators.match(
                                     value,
-                                    controller.passwordRegisterTextEditingController.text,
+                                    controller
+                                        .passwordRegisterTextEditingController
+                                        .text,
                                     fieldName: 'تأكيد كلمة المرور',
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
                           Obx(
-                            () =>
-                                controller.loading.isTrue
-                                    ? Center(
-                                      child: CircularProgressIndicator(color: AppColors.primary),
-                                    )
-                                    : FadeInUp(
-                                      delay: Duration(milliseconds: 600),
-                                      duration: Duration(milliseconds: 600),
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 12.h),
-                                        child: ButtonLoginWidget(
-                                          onTap: () => controller.submitRegister(),
-                                          text: 'register_new_user'.tr,
-                                        ),
+                            () => controller.loading.isTrue
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.primary),
+                                  )
+                                : FadeInUp(
+                                    delay: Duration(milliseconds: 600),
+                                    duration: Duration(milliseconds: 600),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 12.h),
+                                      child: ButtonLoginWidget(
+                                        onTap: () =>
+                                            controller.submitRegister(),
+                                        text: 'register_new_user'.tr,
                                       ),
                                     ),
+                                  ),
                           ),
-                          // FadeInUp(
-                          //   delay: Duration(milliseconds: 700),
-                          //   duration: Duration(milliseconds: 600),
-                          //   child: Padding(
-                          //     padding: EdgeInsets.symmetric(vertical: 8.h),
-                          //     child: OrDividerWidget(),
-                          //   ),
-                          // ),
-                          // FadeInUp(
-                          //   delay: Duration(milliseconds: 800),
-                          //   duration: Duration(milliseconds: 600),
-                          //   child: ButtonWithGoogleWidget(onTap: ()=> controller.signInWithGoogle()),
-                          // ),
+                          FadeInUp(
+                            delay: Duration(milliseconds: 700),
+                            duration: Duration(milliseconds: 600),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.h),
+                              child: OrDividerWidget(),
+                            ),
+                          ),
+                          FadeInUp(
+                            delay: Duration(milliseconds: 800),
+                            duration: Duration(milliseconds: 600),
+                            child: ButtonWithGoogleWidget(
+                                onTap: () => controller.signInWithGoogle()),
+                          ),
                         ],
                       ),
                     ),

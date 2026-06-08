@@ -61,20 +61,20 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDbJOopiiWnxWchTshQb9kaIeuwkb81MbE',
-    appId: '1:602649121057:ios:08cf9527fbb358f6f6ee60',
+    appId: '1:602649121057:ios:590e1a1ddfe0bce3f6ee60',
     messagingSenderId: '602649121057',
     projectId: 'areisto-space',
     storageBucket: 'areisto-space.firebasestorage.app',
-    iosBundleId: 'gaza.aristospace',
+    iosBundleId: 'com.aristospace.gaza',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDbJOopiiWnxWchTshQb9kaIeuwkb81MbE',
-    appId: '1:602649121057:ios:08cf9527fbb358f6f6ee60',
+    appId: '1:602649121057:ios:590e1a1ddfe0bce3f6ee60',
     messagingSenderId: '602649121057',
     projectId: 'areisto-space',
     storageBucket: 'areisto-space.firebasestorage.app',
-    iosBundleId: 'gaza.aristospace',
+    iosBundleId: 'com.aristospace.gaza',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>602649121057-jg4cph6i64k986br4qklfc93shbf4bdt.apps.googleusercontent.com</string>
+	<string>602649121057-m11m9ub0nb4umsil5pkko5p7uqh1krcg.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.602649121057-jg4cph6i64k986br4qklfc93shbf4bdt</string>
+	<string>com.googleusercontent.apps.602649121057-m11m9ub0nb4umsil5pkko5p7uqh1krcg</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>602649121057-5na0tjak9176udkcvr714lcl2gl8qarl.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.workspace</string>
+	<string>com.aristospace.gaza</string>
 	<key>PROJECT_ID</key>
 	<string>areisto-space</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,11 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:602649121057:ios:08cf9527fbb358f6f6ee60</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
+	<string>1:602649121057:ios:590e1a1ddfe0bce3f6ee60</string>
 </dict>
 </plist>
