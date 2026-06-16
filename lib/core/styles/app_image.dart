@@ -2,6 +2,7 @@ class AppImage {
   static const String _baseImagePath = 'assets/images/';
 
   static const String logoImage = '${_baseImagePath}logo.png';
+  static const String splashLogoImage = '${_baseImagePath}splash_logo.png';
 
 }
 

@@ -26,7 +26,6 @@ class SignUpController extends GetxController {
     'طالب': 'student',
     'موظف': 'employee',
     'مستقل': 'independent',
-    'شركة': 'company',
   };
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>(); // GlobalKey فريدة لـ SignUp
 

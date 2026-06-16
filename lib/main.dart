@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_file.dart';
-import 'package:workspace/core/config/constants.dart';
 import 'package:workspace/core/config/storage/local_storage.dart';
 import 'package:workspace/core/localization/app_translation.dart';
 import 'package:workspace/firebase_options.dart';
@@ -28,13 +27,9 @@ void main() async{
     return true;
   };
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
   await ScreenUtil.ensureScreenSize();
-  final hasSeenToken = await LocalStorage().readValue(Constants.token) != null;
-  runApp(MyApp(
-    initialRoute: hasSeenToken ? AppRouting.btnNavView : AppRouting.splashView,
+  runApp(const MyApp(
+    initialRoute: AppRouting.loadingView,
   ));
 }
 

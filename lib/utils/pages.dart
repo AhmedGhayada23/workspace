@@ -46,11 +46,18 @@ import 'package:workspace/features/profile/presentation/views/profile_view.dart'
 import 'package:workspace/features/profile/presentation/views/setting_profile_view.dart';
 import 'package:workspace/features/search/bindings/search_binding.dart';
 import 'package:workspace/features/search/presentation/views/search_view.dart';
+import 'package:workspace/features/splash/bindings/loading_binding.dart';
 import 'package:workspace/features/splash/bindings/splash_binding.dart';
+import 'package:workspace/features/splash/presentation/views/loading_view.dart';
 import 'package:workspace/features/splash/presentation/views/splash_view.dart';
 import 'package:workspace/utils/routing.dart';
 
 final List<GetPage> pages = <GetPage>[
+  GetPage(
+    name: AppRouting.loadingView,
+    page: () => const LoadingView(),
+    binding: LoadingBinding(),
+  ),
   GetPage(
     name: AppRouting.signInView,
     page: () =>  SiginInView(),

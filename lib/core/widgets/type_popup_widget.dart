@@ -17,7 +17,6 @@ void showCustomPopup(
     'طالب': 'student',
     'موظف': 'employee',
     'مستقل': 'independent',
-    'شركة': 'company',
   };
   showDialog(
     context: context,

@@ -1,4 +1,5 @@
 class AppRouting {
+  static const String loadingView = '/loadingView';
   static const String splashview = '/splashView';
   static const String onBordingView = '/onBordingView';
   static const String signInView = '/signInView';

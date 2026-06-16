@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(flutter analyze lib/main.dart lib/utils/pages.dart lib/features/splash 2>&1)",
+      "PowerShell(dart run flutter_native_splash:create 2>&1)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"d:\\\\Flutter Project\\\\workspace-app-aristo_space\\\\assets\\\\images\\\\logo.png\"\\); \"logo.png: $\\($img.Width\\) x $\\($img.Height\\)\"; $img.Dispose\\(\\); $bg = [System.Drawing.Image]::FromFile\\(\"d:\\\\Flutter Project\\\\workspace-app-aristo_space\\\\assets\\\\images\\\\launcher_icon.png\"\\); \"launcher_icon.png: $\\($bg.Width\\) x $\\($bg.Height\\)\"; $bg.Dispose\\(\\))",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; Get-ChildItem \"d:\\\\Flutter Project\\\\workspace-app-aristo_space\\\\android\\\\app\\\\src\\\\main\\\\res\" -Recurse -Filter \"splash.png\" | ForEach-Object { $i = [System.Drawing.Image]::FromFile\\($_.FullName\\); \"$\\($_.Directory.Name\\)\\\\splash.png : $\\($i.Width\\) x $\\($i.Height\\)\"; $i.Dispose\\(\\) })",
+      "PowerShell(dart run flutter_native_splash:create 2>&1 | Select-Object -Last 6; Add-Type -AssemblyName System.Drawing; Get-ChildItem \"d:\\\\Flutter Project\\\\workspace-app-aristo_space\\\\android\\\\app\\\\src\\\\main\\\\res\" -Recurse -Filter \"splash.png\" | ForEach-Object { $i = [System.Drawing.Image]::FromFile\\($_.FullName\\); \"$\\($_.Directory.Name\\) : $\\($i.Width\\) x $\\($i.Height\\)\"; $i.Dispose\\(\\) })"
+    ]
+  }
+}
