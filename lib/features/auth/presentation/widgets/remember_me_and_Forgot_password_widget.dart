@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/utils.dart';
+import 'package:workspace/core/localization/app_tr.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RememberMeAndForgotPasswordWidget extends StatelessWidget {

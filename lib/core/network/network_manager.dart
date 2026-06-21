@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:get/get.dart';
 import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_router.dart';
 
 class NetworkManager {
   static final NetworkManager _instance = NetworkManager._internal();
@@ -20,18 +20,18 @@ class NetworkManager {
       if (!_hasShownInitialConnection) {
         _hasShownInitialConnection = true;
         if (connectionStatus == ConnectivityResult.none) {
-          showCustomSnackBar(Get.context!, "لا يوجد اتصال بالإنترنت", SnackBarType.noConnection);
+          showCustomSnackBar(navigatorKey.currentContext!, "لا يوجد اتصال بالإنترنت", SnackBarType.noConnection);
         }
       } else {
         if (connectionStatus != ConnectivityResult.none) {
-          showCustomSnackBar(Get.context!, "تم الاتصال بالإنترنت", SnackBarType.successInterNet);
+          showCustomSnackBar(navigatorKey.currentContext!, "تم الاتصال بالإنترنت", SnackBarType.successInterNet);
 
           // 🔽 نفذ الفنكشن عند الاتصال إذا تم توفيرها
           if (onConnected != null) {
             onConnected();
           }
         } else {
-          showCustomSnackBar(Get.context!, "لا يوجد اتصال بالإنترنت", SnackBarType.noConnection);
+          showCustomSnackBar(navigatorKey.currentContext!, "لا يوجد اتصال بالإنترنت", SnackBarType.noConnection);
         }
       }
     });

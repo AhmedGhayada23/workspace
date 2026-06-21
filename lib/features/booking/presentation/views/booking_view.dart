@@ -1,425 +1,227 @@
-import 'dart:developer';
-
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/core/widgets/calendar_picker_popup.dart';
-import 'package:workspace/core/widgets/time_picker_popup.dart';
 import 'package:workspace/core/widgets/text_field_widget.dart';
-import 'package:workspace/features/booking/controllers/booking_controller.dart';
+import 'package:workspace/features/booking/presentation/cubit/booking/booking_cubit.dart';
+import 'package:workspace/features/booking/presentation/widgets/booking_form_fields.dart';
+import 'package:workspace/features/booking/presentation/widgets/booking_submit_bar.dart';
 import 'package:workspace/features/details_space/data/model/details_space_model.dart';
-import 'package:workspace/utils/routing.dart';
 import 'package:workspace/utils/validators.dart';
 
-class BookingView extends GetView<BookingController> {
-  const BookingView({super.key});
+class BookingView extends StatelessWidget {
+  final Spaces space;
+  final List<dynamic> subscriptions;
+  final String spaceId;
+  final String isProfit;
+
+  const BookingView({
+    super.key,
+    required this.space,
+    required this.subscriptions,
+    required this.spaceId,
+    required this.isProfit,
+  });
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<BookingCubit>(),
+      child: _BookingBody(
+        space: space,
+        subscriptions: subscriptions,
+        spaceId: spaceId,
+        isProfit: isProfit,
+      ),
+    );
+  }
+}
+
+class _BookingBody extends StatefulWidget {
+  final Spaces space;
+  final List<dynamic> subscriptions;
+  final String spaceId;
+  final String isProfit;
+
+  const _BookingBody({
+    required this.space,
+    required this.subscriptions,
+    required this.spaceId,
+    required this.isProfit,
+  });
+
+  @override
+  State<_BookingBody> createState() => _BookingBodyState();
+}
+
+class _BookingBodyState extends State<_BookingBody> {
+  final _nav = sl<AppNavigator>();
+  final _formKey = GlobalKey<FormState>();
+  final _seatsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _seatsController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final state = context.read<BookingCubit>().state;
+    _nav.toConfirmBooking(
+      arguments: widget.space,
+      parameters: {
+        'id': widget.spaceId,
+        'is_profit': widget.isProfit,
+        'subscription_id': state.subscriptionId.toString(),
+        'startDate': state.startDate,
+        'endDate': state.endDate,
+        'startTime': state.startTime,
+        'endTime': state.endTime,
+        'seatsCount': _seatsController.text,
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<BookingCubit>();
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(Icons.arrow_back, size: 24.r, color: Color(0xFF212121)),
+          onPressed: _nav.back,
+          icon: Icon(Icons.arrow_back, size: 24.r, color: const Color(0xFF212121)),
         ),
         centerTitle: true,
-        title: FadeInDown(
-          child: Text(
-            'طلب حجز',
-            style: GoogleFonts.tajawal(
-              color: Color(0xFF212121),
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-            ),
+        title: Text(
+          'طلب حجز',
+          style: GoogleFonts.tajawal(
+            color: const Color(0xFF212121),
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
-      bottomNavigationBar: InkWell(
-        onTap: () => controller.submitBooking(),
-        child: BounceInUp(
-          child: Container(
-            height: 83.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFFF9FAFB), width: 1.w),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromRGBO(0, 0, 0, 0.04),
-                  offset: const Offset(0, -2),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: Center(
-              child: Container(
-                height: 44.h,
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                margin: EdgeInsets.symmetric(horizontal: 24.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF32B599),
-                  borderRadius: BorderRadius.circular(50.r),
-                ),
-                child: Center(
-                  child: Text(
-                    'ارسل الحجز',
-                    style: GoogleFonts.tajawal(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: BookingSubmitBar(label: 'ارسل الحجز', onTap: _submit),
       body: SingleChildScrollView(
         child: Form(
-          key: controller.bookingFormKey,
+          key: _formKey,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FadeInUp(
-                  duration: Duration(milliseconds: 300),
-                  child: Text(
-                    'نوع الاشتراك',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+            child: BlocBuilder<BookingCubit, BookingState>(
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const BookingFieldLabel('نوع الاشتراك'),
+                    SizedBox(height: 8.h),
+                    SubscriptionDropdown(
+                      subscriptions: widget.subscriptions,
+                      onSelected: cubit.setSubscription,
                     ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 400),
-                  child: CustomDropdown(
-                    hintText: 'اختر الاشتراك',
-                    items:
-                        controller.subscriptions
-                            .map((e) => '${e.typeTitle} - ${e.price!.split('.0').first} شيكل')
-                            .toList(),
-
-                    // تعديل حسب اسم الحقل
-                    onChanged: (value) {
-                      // الحصول على الاشتراك الذي تم اختياره
-                      final selectedSubscription = controller.subscriptions.firstWhere(
-                        (e) => '${e.typeTitle} - ${e.price!.split('.0').first} شيكل' == value,
-                      );
-
-                      controller.subscriptionId.value = selectedSubscription.id!;
-                    },
-                    validator: (p0) => Validators.required(p0.toString()),
-                    decoration: CustomDropdownDecoration(
-                      hintStyle: GoogleFonts.tajawal(fontSize: 16.sp, color: Color(0xFF9E9E9E)),
-                      headerStyle: GoogleFonts.tajawal(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      listItemStyle: GoogleFonts.tajawal(fontSize: 14.sp),
-                      closedBorderRadius: BorderRadius.circular(50.r),
-                      expandedBorderRadius: BorderRadius.circular(8.r),
-                      closedBorder: Border.all(color: Color(0xFFF5F5F5), width: 1.r),
-                      expandedBorder: Border.all(color: Color(0xFFF5F5F5), width: 1.r),
-                      errorStyle: GoogleFonts.tajawal(),
-                      closedErrorBorder: Border.all(color: Color(0xFFF5F5F5), width: 1.r),
-                      closedErrorBorderRadius: BorderRadius.circular(8.r),
+                    SizedBox(height: 16.h),
+                    const BookingFieldLabel('عدد المقاعد'),
+                    SizedBox(height: 8.h),
+                    TextFieldWidgets(
+                      controller: _seatsController,
+                      hint: '',
+                      keyboardType: TextInputType.number,
+                      validator: Validators.positiveInteger,
                     ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 500),
-                  child: Text(
-                    'عدد المقاعد',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+                    SizedBox(height: 16.h),
+                    const BookingFieldLabel('تاريخ البدء'),
+                    SizedBox(height: 8.h),
+                    BookingDateField(
+                      value: state.startDate,
+                      onPicked: cubit.setStartDate,
+                      validator: (_) => state.startDate.isEmpty ? 'حقل مطلوب' : null,
                     ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 600),
-                  child: TextFieldWidgets(
-                    controller: controller.seatsCountTextEditingController,
-                    hint: '',
-                    keyboardType: TextInputType.number,
-                    validator: Validators.positiveInteger,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 700),
-                  child: Text(
-                    'تاريخ البدء',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+                    SizedBox(height: 16.h),
+                    const BookingFieldLabel('تاريخ الانتهاء'),
+                    SizedBox(height: 8.h),
+                    BookingDateField(
+                      value: state.endDate,
+                      onPicked: cubit.setEndDate,
+                      validator: (_) => _validateEndDate(state),
                     ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 800),
-                  child: Obx(
-                    () => TextFieldWidgets(
-                      hint: controller.startDate.value.split(' ').first,
-                      readOnly: true,
-                    validator: (value) {
-  if (controller.startDate.value.isEmpty) {
-    return 'حقل مطلوب';
-  }
-  return null;
-},
-
-
-                      suffixIcon: IconButton(
-                        onPressed: () {
-
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (context) {
-                              return CalendarPickerPopup(
-                                initialSelectedDate: DateTime.now(), // التاريخ الابتدائي
-                                onDateSelected: (selectedDate) {
-                                  final formattedDate = DateFormat(
-                                    'y-M-d',
-                                  ).format(selectedDate); // ← 2025-4-26
-                                  print('✅ التاريخ المختار: $formattedDate');
-                                  controller.startDate.value = formattedDate;
-                                },
-                              );
-                            },
-                          );
-                        },
-                        icon: SvgPicture.asset(AppSvg.calendarSvg, width: 24.w, height: 24.h),
-                      ),
+                    SizedBox(height: 16.h),
+                    const BookingFieldLabel('وقت البدء'),
+                    SizedBox(height: 8.h),
+                    BookingTimeField(
+                      value: state.startTime,
+                      onPicked: cubit.setStartTime,
+                      validator: (_) => state.startTime.isEmpty ? 'حقل مطلوب' : null,
                     ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 900),
-                  child: Text(
-                    'تاريخ الانتهاء',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+                    SizedBox(height: 16.h),
+                    const BookingFieldLabel('وقت الانتهاء'),
+                    SizedBox(height: 8.h),
+                    BookingTimeField(
+                      value: state.endTime,
+                      onPicked: cubit.setEndTime,
+                      validator: (_) => _validateEndTime(state),
                     ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 1000),
-                  child: Obx(
-                    () => TextFieldWidgets(
-                      hint: controller.endDate.value.split(' ').first,
-                      readOnly: true,
-    validator: (value) {
-  if (controller.endDate.value.isEmpty) {
-    return 'حقل مطلوب';
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  DateTime? parseDate(String date) {
+  DateTime? _parseDate(String d) {
     try {
-      // جرب الصيغة yyyy-MM-dd
-      return DateFormat('yyyy-MM-dd').parseStrict(date);
+      return DateFormat('yyyy-MM-dd').parseStrict(d);
     } catch (_) {
       try {
-        // جرب الصيغة dd-MM-yyyy
-        return DateFormat('dd-MM-yyyy').parseStrict(date);
+        return DateFormat('dd-MM-yyyy').parseStrict(d);
       } catch (_) {
         return null;
       }
     }
   }
 
-  final start = parseDate(controller.startDate.value);
-  final end = parseDate(controller.endDate.value);
-
-  if (start != null && end != null && end.isBefore(start)) {
-    return 'تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ البدء';
+  String? _validateEndDate(BookingState state) {
+    if (state.endDate.isEmpty) return 'حقل مطلوب';
+    final start = _parseDate(state.startDate);
+    final end = _parseDate(state.endDate);
+    if (start != null && end != null && end.isBefore(start)) {
+      return 'تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ البدء';
+    }
+    return null;
   }
-  return null;
-},
 
+  /// وقت الانتهاء يجب أن يكون بعد وقت البدء (عند تطابق التاريخين). الصيغة "HH:mm".
+  String? _validateEndTime(BookingState state) {
+    if (state.endTime.isEmpty) return 'حقل مطلوب';
+    if (state.startTime.isEmpty) return null;
 
-                      suffixIcon: IconButton(
-                        onPressed: () {
+    final start = _parseDate(state.startDate);
+    final end = _parseDate(state.endDate);
+    // إن كان تاريخ الانتهاء بعد تاريخ البدء فلا قيد على الوقت.
+    if (start != null && end != null && end.isAfter(start)) return null;
 
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (context) {
-                              return CalendarPickerPopup(
-                                initialSelectedDate: DateTime.now(), // التاريخ الابتدائي
-                                onDateSelected: (selectedDate) {
-                                  final formattedDate = DateFormat(
-                                    'y-M-d',
-                                  ).format(selectedDate); // ← 2025-4-26
-                                  print('✅ التاريخ المختار: $formattedDate');
-                                  controller.endDate.value = formattedDate;
-                                },
-                              );
-                            },
-                          );
-                        },
-                        icon: SvgPicture.asset(AppSvg.calendarSvg, width: 24.w, height: 24.h),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 1100),
-                  child: Text(
-                    'وقت البدء',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 1200),
-                  child: Obx(
-                    () => TextFieldWidgets(
-                      hint: controller.startTime.value,
-                      readOnly: true,
-                      validator: (value) {
-                        if (controller.startTime.value == '') {
-                          return 'حقل مطلوب';
-                        }
-                        return null;
-                      },
-                      suffixIcon: IconButton(
-                        onPressed: () async {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder:
-                                (_) => TimePickerPopup(
-                                  onTimeSelected: (DateTime newTime) {
-                                    controller.selectStartTime.value = true;
-                                    String formattedTime =
-                                        '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+    int? minutes(String t) {
+      final parts = t.split(':');
+      if (parts.length != 2) return null;
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (h == null || m == null) return null;
+      return h * 60 + m;
+    }
 
-                                    print("الوقت المحدد: $formattedTime");
-                                    controller.startTime.value = formattedTime;
-                                  },
-                                  onContinue: () {
-                                    if (controller.selectStartTime.value == true) {
-                                      Navigator.pop(context);
-                                    } else {
-                                      String formattedTime = DateFormat(
-                                        'hh:mm',
-                                      ).format(DateTime.now());
-                                      controller.startTime.value = formattedTime;
-
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                                ),
-                          ).then((result) {
-                            log('message $result');
-                            controller.selectStartTime.value = false;
-                          });
-                        },
-                        icon: Icon(Icons.timer_outlined, color: Color(0xFF212121), size: 24.r),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 1300),
-                  child: Text(
-                    'وقت الانتهاء',
-                    style: TextStyle(
-                      color: Color(0xFF212121),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                FadeInUp(
-                  duration: Duration(milliseconds: 1400),
-                  child: Obx(
-                    () => TextFieldWidgets(
-                      hint: controller.endTime.value,
-                      readOnly: true,
-                      validator: (value) {
-                        if (controller.endTime.value == '') {
-                          return 'حقل مطلوب';
-                        }
-                        return null;
-                      },
-                      suffixIcon: IconButton(
-                        onPressed: () async {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder:
-                                (_) => TimePickerPopup(
-                                  onTimeSelected: (DateTime newTime) {
-                                    controller.selectEndTime.value = true;
-                                    String formattedTime =
-                                        '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
-
-                                    print("الوقت المحدد: $formattedTime");
-                                    controller.endTime.value = formattedTime;
-                                  },
-                                  onContinue: () {
-                                    if (controller.selectEndTime.value == true) {
-                                      Navigator.pop(context);
-                                    } else {
-                                      String formattedTime = DateFormat(
-                                        'hh:mm',
-                                      ).format(DateTime.now());
-                                      controller.endTime.value = formattedTime;
-
-                                      Navigator.pop(context);
-                                    }
-
-                                    // تنفيذ الإجراء عند الضغط على متابعة
-
-                                    // أكمل الإجراء الذي تريده هنا
-                                  },
-                                ),
-                          ).then((result) {
-                            log('message $result');
-                            controller.selectEndTime.value = false;
-                          });
-                        },
-                        icon: Icon(Icons.timer_outlined, color: Color(0xFF212121), size: 24.r),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    final s = minutes(state.startTime);
+    final e = minutes(state.endTime);
+    if (s != null && e != null && e <= s) {
+      return 'وقت الانتهاء يجب أن يكون بعد وقت البدء';
+    }
+    return null;
   }
 }

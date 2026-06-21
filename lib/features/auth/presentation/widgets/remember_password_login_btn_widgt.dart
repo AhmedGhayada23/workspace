@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/utils/routing.dart';
 
 class RememberPasswordAndLoginButtonWidgt extends StatelessWidget {
- 
+  final VoidCallback onLogin;
 
- const RememberPasswordAndLoginButtonWidgt({super.key});
+  const RememberPasswordAndLoginButtonWidgt({super.key, required this.onLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,7 @@ class RememberPasswordAndLoginButtonWidgt extends StatelessWidget {
           ),
         ),
         InkWell(
-          onTap: ()=> Get.toNamed(AppRouting.signInView),
+          onTap: onLogin,
           child: Container(
             height: 37.h,
             padding: EdgeInsets.symmetric(horizontal: 16.w),

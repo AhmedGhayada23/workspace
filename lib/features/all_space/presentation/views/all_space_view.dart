@@ -1,303 +1,243 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:workspace/core/config/constants.dart';
+import 'package:workspace/core/config/storage/local_storage.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/core/styles/app_image.dart';
-import 'package:badges/badges.dart' as badges;
-import 'package:workspace/features/Home/presentation/widgets/btn_search_home_widget.dart';
-import 'package:workspace/features/Home/presentation/widgets/loading_home.dart';
-import 'package:workspace/features/all_space/controllers/all_space_controller.dart';
-import 'package:workspace/features/all_space/data/models/spaces_data_model.dart';
+import 'package:workspace/features/Home/domain/entities/home_profile.dart';
+import 'package:workspace/features/Home/domain/entities/space_item.dart';
+import 'package:workspace/features/Home/presentation/widgets/home_app_bar.dart';
+import 'package:workspace/features/all_space/presentation/cubit/all_space_cubit.dart';
+import 'package:workspace/features/all_space/presentation/widgets/all_space_header_delegate.dart';
+import 'package:workspace/features/all_space/presentation/widgets/province_filter_sheet.dart';
 import 'package:workspace/features/all_space/presentation/widgets/all_item_space_widget.dart';
-import 'package:workspace/features/bottom_navigation_bar/controllers/btn_nav_controller.dart';
+import 'package:workspace/features/notification/presentation/cubit/notification_badge_cubit.dart';
+import 'package:workspace/features/profile/presentation/cubit/profile/profile_cubit.dart';
 import 'package:workspace/features/search/presentation/widgets/no_result.dart';
-import 'package:workspace/utils/routing.dart';
 
-class AllSpaceView extends GetView<AllSpaceController> {
+const _fakeProfile = HomeProfile(name: 'محمد عبد الله', typeTitle: 'طالب', imageUrl: '');
+const _fakeSpace = SpaceItem(
+  id: 0,
+  typeTitle: 'مساحة عمل',
+  image: '',
+  nameCompany: 'شركة المساحات',
+  ratingCount: '12',
+  ratingAverage: '4.5',
+  address: 'غزة - الرمال',
+  availableFrom: '09:00 AM',
+  availableTo: '05:00 PM',
+  email: 'info@example.com',
+  mobile: '0591234567',
+);
+
+class AllSpaceView extends StatelessWidget {
   const AllSpaceView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
+    // الزائر لا حساب له → لا نطلب /profile/me.
+    final isVisitor =
+        sl<LocalStorage>().readValue<String>(Constants.userType) == 'visitor';
+    final profileCubit = sl<ProfileCubit>();
+    if (!isVisitor) profileCubit.loadIfNeeded();
 
-      body: CustomScrollView(
-        slivers: [
-          Obx(
-            () =>
-                controller.profileData.loading.isTrue
-                    ? HomeShimmerView().appBar
-                    : SliverAppBar(
-                      backgroundColor: Colors.white,
-                      elevation: 1,
-                      automaticallyImplyLeading: false,
-                      pinned: true,
-
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: Container(color: Colors.white),
-                        title: SafeArea(
-                          bottom: false,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Row(
-                              children: [
-                                InkWell(
-                                  onTap: () => Get.find<BtnNavController>().onItemSelected(2),
-                                  child: CircleAvatar(
-                                    radius: 25.r,
-                                    backgroundColor: Color(0xFFE0E0E0),
-                                    backgroundImage: NetworkImage(
-                                      controller
-                                              .profileData
-                                              .listProileData
-                                              .value
-                                              ?.data
-                                              ?.user
-                                              ?.customer
-                                              ?.imageUrl ??
-                                          'https://mobile.spaces.areisto.com/themes/Falcon/v3.22.0/assets/img/team/avatar.png',
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10.w),
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () => Get.find<BtnNavController>().onItemSelected(2),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        FadeInDown(
-                                          duration: Duration(milliseconds: 600),
-                                          child: Text(
-                                            "مرحبا, ${controller.profileData.listProileData.value?.data?.user?.name ?? 'كزائر'}",
-                                            style: GoogleFonts.tajawal(
-                                              color: Color(0xFF212121),
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: controller.profileData.listProileData.value != null ? 2.h : 0.h),
-                                      controller.profileData.listProileData.value != null ?  FadeInDown(
-                                          delay: Duration(milliseconds: 200),
-                                          child: Text(
-                                            controller
-                                                    .profileData
-                                                    .listProileData
-                                                    .value
-                                                    ?.data
-                                                    ?.user
-                                                    ?.customer
-                                                    ?.typeTitle ??
-                                                '-',
-                                            style: GoogleFonts.tajawal(
-                                              color: Color(0xFF616161),
-                                              fontSize: 12.sp,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ): SizedBox.shrink(),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () => Get.toNamed(AppRouting.notifcationView),
-                                  child: Container(
-                                    width: 40.w,
-                                    height: 40.h,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(width: 1.w, color: Color(0xFFF5F5F5)),
-                                    ),
-                                    child:
-                                    Obx(
-                  ()=> badges.Badge(
-                    showBadge: controller.fcmController.hasUnread.value,
-                    position: badges.BadgePosition.topStart(top: 7, start : 10),
-                     badgeStyle: badges.BadgeStyle(
-                      padding:  EdgeInsets.all(6.r),
-          badgeColor: AppColors.primary, // لون الخلفية
-
-        ),
-                    child: Center(child: SvgPicture.asset(AppSvg.notificationSvg))),
-                ),
-
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-          ),
-
-          SliverPersistentHeader(pinned: true, delegate: MyHeaderDelegate()),
-
-          PagedSliverList<int, Spaces>(
-            pagingController: controller.pagingController,
-            builderDelegate: PagedChildBuilderDelegate<Spaces>(
-              itemBuilder: (context, item, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: AllItemSpaceWidget(
-                    id: item.id!,
-                    address: item.address ?? '-',
-                    available:
-                        '${controller.formatTime(item.availableFrom)} - ${controller.formatTime(item.availableTo)}',
-                    email: item.email ?? '-',
-                    image: item.mainImageUrl ?? '-',
-                    mobile: item.mobile ?? '-',
-                    nameCompany: item.company?.name ?? '-',
-                    ratingAverage: '${item.ratingAverage ?? '0'}',
-                    ratingCount: '${item.customerRatingCount ?? '0'}',
-                    typeTitle: item.company?.typeTitle ?? '-',
-                    onTap: () => Get.toNamed(AppRouting.detailsView, arguments: item.id!),
-                  ),
-                );
-              },
-              firstPageProgressIndicatorBuilder:
-                  (context) => Column(
-                    children: List.generate(
-                      4,
-                      (_) => Padding(
-                        padding: EdgeInsets.only(right: 16.w),
-                        child: HomeShimmerView().spaceCard(width: double.infinity),
-                      ),
-                    ),
-                  ),
-
-              newPageProgressIndicatorBuilder:
-                  (context) => SpinKitFadingCircle(
-                    color: AppColors.primary,
-                    size: 50.0,
-                    duration: Duration(milliseconds: 1200),
-                    controller: controller.animationController,
-                  ),
-              noItemsFoundIndicatorBuilder: (context) => Center(child: NoResult()),
-            ),
-          ),
-        ],
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<AllSpaceCubit>()..init()),
+        BlocProvider.value(value: profileCubit),
+        // عدّاد الإشعارات المشترك (نفسه في الرئيسية).
+        BlocProvider.value(value: sl<NotificationBadgeCubit>()),
+      ],
+      child: _AllSpaceBody(isVisitor: isVisitor),
     );
   }
 }
 
-class MyHeaderDelegate extends SliverPersistentHeaderDelegate {
-  @override
-  @override
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Material(
-      color: AppColors.white,
-      child: SizedBox(
-        height: maxExtent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16.h),
+class _AllSpaceBody extends StatefulWidget {
+  final bool isVisitor;
 
-            // 🎯 BtnSearchHomeWidget يتأثر بالسحب
-            Padding(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w),
-              child: BtnSearchHomeWidget(),
-            ),
+  const _AllSpaceBody({required this.isVisitor});
 
-            SizedBox(height: 12.h),
+  @override
+  State<_AllSpaceBody> createState() => _AllSpaceBodyState();
+}
 
-            Padding(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 55.h,
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFAFAFA), // fallback for var(--w-1, #FAFAFA)
-                        borderRadius: BorderRadius.circular(50.r), // border-radius: 50px
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(3, (index) {
-                            return Expanded(
-                              child: Obx(
-                                () => InkWell(
-                                  onTap: () => Get.find<AllSpaceController>().filtersProfit(index),
-                                  child: Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 4.w),
-                                    height: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Get.find<AllSpaceController>().index.value == index
-                                              ? AppColors.primary
-                                              : Color(0xFFF5F5F5),
-                                      borderRadius: BorderRadius.circular(50.r),
+class _AllSpaceBodyState extends State<_AllSpaceBody> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      context.read<AllSpaceCubit>().loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nav = sl<AppNavigator>();
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: BlocBuilder<AllSpaceCubit, AllSpaceState>(
+        builder: (context, state) {
+          final cubit = context.read<AllSpaceCubit>();
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () => Future.wait([
+              cubit.loadFirstPage(),
+              if (!widget.isVisitor) sl<ProfileCubit>().load(),
+            ]),
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+              // الهيدر: للزائر بيانات ثابتة (بلا طلب)، وللعادي من ProfileCubit المشترك.
+              BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, pState) {
+                  final profileLoading =
+                      !widget.isVisitor && pState.status != ProfileStatus.loaded;
+                  final user = pState.profile?.data?.user;
+                  return BlocBuilder<NotificationBadgeCubit, int>(
+                    builder: (context, unread) {
+                      return Skeletonizer.sliver(
+                        enabled: profileLoading,
+                        child: HomeAppBar(
+                          profile: widget.isVisitor
+                              ? const HomeProfile(
+                                  name: 'مرحبا بيك , كزائر', typeTitle: '', imageUrl: '')
+                              : profileLoading
+                                  ? _fakeProfile
+                                  : HomeProfile(
+                                      name: user?.name ?? 'مستخدم',
+                                      typeTitle: user?.customer?.typeTitle ?? '-',
+                                      imageUrl: user?.customer?.imageUrl ?? '',
                                     ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      index == 0
-                                          ? 'الكل'
-                                          : index == 1
-                                          ? 'الغير ربحية'
-                                          : 'الربحية',
-                                      style: GoogleFonts.tajawal(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w500,
-                                        color:
-                                            Get.find<AllSpaceController>().index.value == index
-                                                ? AppColors.white
-                                                : AppColors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
+                          hasUnread: unread > 0,
+                          unreadCount: unread,
+                          showNotifications: !widget.isVisitor,
+                          onProfileTap: () => nav.offAllToHomeTab(2),
+                          onNotificationsTap: nav.toNotifications,
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  InkWell(
-                    onTap: () => Get.find<AllSpaceController>().showFilter(context),
-
-                    child: FadeInDown(
-                      child: Container(
-                        width: 32.w,
-                        height: 32.h,
-                        // equivalent to padding: 3px;
-                        decoration: BoxDecoration(color: Color(0xFF32B599), shape: BoxShape.circle),
-                        child: Center(child: SvgPicture.asset(AppSvg.settingSvg)),
-                      ),
-                    ),
-                  ),
-                ],
+                      );
+                    },
+                  );
+                },
               ),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: AllSpaceHeaderDelegate(
+                  onSearch: nav.toSearch,
+                  selectedFilter: state.profitIndex,
+                  onFilter: cubit.changeProfit,
+                  onOpenProvince: () => showProvinceFilterSheet(
+                    context,
+                    provinces: AllSpaceCubit.provinces,
+                    currentId: state.provinceId,
+                    onApply: cubit.applyProvince,
+                  ),
+                ),
+              ),
+              _buildSpaces(context, state, cubit, nav),
+            ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  @override
-  double get maxExtent => 150.0.r;
+  Widget _buildSpaces(
+    BuildContext context,
+    AllSpaceState state,
+    AllSpaceCubit cubit,
+    AppNavigator nav,
+  ) {
+    // التحميل الأول → سكليتون مضمون الظهور
+    if (state.spacesStatus == AllSpaceStatus.loading ||
+        state.spacesStatus == AllSpaceStatus.initial) {
+      return Skeletonizer.sliver(
+        enabled: true,
+        child: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: AllItemSpaceWidget(
+                id: _fakeSpace.id,
+                typeTitle: _fakeSpace.typeTitle,
+                image: _fakeSpace.image,
+                nameCompany: _fakeSpace.nameCompany,
+                ratingCount: _fakeSpace.ratingCount,
+                ratingAverage: _fakeSpace.ratingAverage,
+                address: _fakeSpace.address,
+                available: '09:00 صباحًا - 05:00 مساءً',
+                email: _fakeSpace.email,
+                mobile: _fakeSpace.mobile,
+                onTap: () {},
+              ),
+            ),
+            childCount: 5,
+          ),
+        ),
+      );
+    }
 
-  @override
-  double get minExtent => 150.0.r;
+    if (state.spaces.isEmpty) {
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: NoResult()),
+      );
+    }
 
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index == state.spaces.length) {
+            return state.loadingMore
+                ? Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: const Center(
+                      child: SpinKitFadingCircle(color: AppColors.primary, size: 40),
+                    ),
+                  )
+                : SizedBox(height: 8.h);
+          }
+          final item = state.spaces[index];
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: AllItemSpaceWidget(
+              id: item.id,
+              typeTitle: item.typeTitle,
+              image: item.image,
+              nameCompany: item.nameCompany,
+              ratingCount: item.ratingCount,
+              ratingAverage: item.ratingAverage,
+              address: item.address,
+              available: cubit.availableText(item),
+              email: item.email,
+              mobile: item.mobile,
+              onTap: () => nav.toDetails(item.id),
+            ),
+          );
+        },
+        childCount: state.spaces.length + 1,
+      ),
+    );
+  }
 }

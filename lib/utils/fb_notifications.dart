@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
 import 'package:workspace/core/config/constants.dart';
 import 'package:workspace/core/config/storage/local_storage.dart';
-import 'package:workspace/features/notification/controllers/fcm_notification_controller.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_router.dart';
+import 'package:workspace/features/notification/presentation/cubit/notification_badge_cubit.dart';
 import 'package:workspace/utils/routing.dart';
 import '../core/styles/app_colors.dart';
 import '../firebase_options.dart';
@@ -20,8 +21,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage remoteMessage) asy
   print('firebaseMessagingBackgroundHandler: ${remoteMessage.messageId}');
   // يمكن إضافة منطق لحفظ البيانات في التخزين المحلي أو أي عمليات أخرى تتعلق بالإشعار.
 
-    final fcmController = Get.put(FcmNotificationController());
-      fcmController.markAsUnread();
+  await LocalStorage().writeValue(Constants.unreadNotification, true);
 }
 
 // يتم تعريف القناة الخاصة بالإشعارات على Android
@@ -95,8 +95,8 @@ mixin FbNotifications {
   void initializeForegroundNotificationForAndroid() {
     log('message fica 1');
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-       final fcmController = Get.put(FcmNotificationController());
-      fcmController.markAsUnread();
+      await LocalStorage().writeValue(Constants.unreadNotification, true);
+      sl<NotificationBadgeCubit>().refresh(); // تحديث العدّاد فوراً
 
       log('message fica 2');
       log('Message Received Type: ${message.messageType}');
@@ -134,7 +134,10 @@ mixin FbNotifications {
       log('onMessageOpenedApp');
       log('messageOnMessageOpenedApp :: ${message.data}');
       log('message.data.toString :: ${message.data.toString()}');
-      Get.toNamed(AppRouting.notifcationView);
+      navigatorKey.currentState?.pushNamed(
+        AppRouting.notifcationView,
+        arguments: const RouteArgs(),
+      );
       // controlNotificationNavigation(message.data);
     });
   }

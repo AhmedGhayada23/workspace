@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
 import 'package:workspace/core/widgets/rating_widget.dart';
-import 'package:workspace/features/my_reservations/controllers/my_reservations_controller.dart';
 import 'package:workspace/features/my_reservations/data/models/order_model.dart';
 import 'package:workspace/features/profile/presentation/widgets/edit_confirmation_dialog_widget.dart';
 
@@ -15,11 +13,15 @@ class CardMyResevationWidget extends StatelessWidget {
   final Reservations reservations;
   final bool show;
   final Function()? onTap;
+  final VoidCallback? onCancel;
+  final VoidCallback? onReReserve;
   const CardMyResevationWidget({
     super.key,
     required this.show,
     required this.reservations,
     required this.onTap,
+    this.onCancel,
+    this.onReReserve,
   });
 
   @override
@@ -36,24 +38,13 @@ class CardMyResevationWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 96.w,
-              height: 90.h,
-
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                    reservations.space?.mainImageUrl ??
-                        'https://th.bing.com/th/id/OIP.h6tPbr6dD70MsHJaDT0XJgHaJ4?rs=1&pid=ImgDetMain',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(6.r),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6.r),
+              child: Container(
+                width: 96.w,
+                height: 90.h,
                 color: const Color(0xFFD9D9D9),
-                // image: DecorationImage(
-                //   image: NetworkImage('<path-to-image>'),
-                //   fit: BoxFit.cover,
-                // ),
+                child: _spaceImage(reservations.space?.mainImageUrl ?? ''),
               ),
             ),
 
@@ -137,11 +128,7 @@ class CardMyResevationWidget extends StatelessWidget {
                                           textConfirm: 'ألغاء الحجز',
                                           textConfirmColor: Color(0xFFF75555),
                                           textCanselColor: Color(0xFF000000),
-                                          onConfirm: () {
-                                            Get.find<MyReservationsController>().cancelReservations(
-                                              reservations.id!,
-                                            );
-                                          },
+                                          onConfirm: () => onCancel?.call(),
                                         ),
                                   )
                                   : showDialog(
@@ -153,11 +140,7 @@ class CardMyResevationWidget extends StatelessWidget {
                                           textConfirm: 'أعادة الحجز',
                                           textConfirmColor: AppColors.primary,
                                           textCanselColor: Color(0xFF000000),
-                                          onConfirm: () {
-                                            Get.find<MyReservationsController>().reReservations(
-                                              reservations.id!,
-                                            );
-                                          },
+                                          onConfirm: () => onReReserve?.call(),
                                         ),
                                   );
                             },
@@ -239,4 +222,22 @@ class CardMyResevationWidget extends StatelessWidget {
 
 String _twoDigits(int n) => n.toString().padLeft(2, '0');
 
+  /// صورة المساحة مع بديل عند غياب الرابط أو فشل التحميل (يتجنّب NetworkImage("")).
+  Widget _spaceImage(String url) {
+    if (url.trim().isEmpty) return _imagePlaceholder();
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => _imagePlaceholder(),
+      loadingBuilder: (_, child, progress) => progress == null ? child : _imagePlaceholder(),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Center(
+      child: Icon(Icons.image_outlined, color: Colors.white, size: 32.r),
+    );
+  }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/features/bottom_navigation_bar/controllers/btn_nav_controller.dart';
 
 
 class BookingSuccessPopup extends StatelessWidget {
@@ -65,11 +65,8 @@ class BookingSuccessPopup extends StatelessWidget {
                 duration: const Duration(milliseconds: 800),
                 child: InkWell(
                   onTap: () {
-                    if (!Get.isRegistered<BtnNavController>()) {
-                      Get.put(BtnNavController());
-                    }
-                    Get.find<BtnNavController>().pushNavigationBar(1);
-                    Get.back(); // لإغلاق الـ popup
+                    Navigator.of(context).pop(); // لإغلاق الـ popup
+                    sl<AppNavigator>().offAllToHomeTab(1);
                   },
                   child: Container(
                     height: 44.h,

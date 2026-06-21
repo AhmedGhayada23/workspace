@@ -1,585 +1,221 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/state_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+import 'package:workspace/core/config/constants.dart';
+import 'package:workspace/core/config/storage/local_storage.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/features/Home/presentation/widgets/loading_home.dart';
-import 'package:workspace/features/details_space/controllers/details_space_controller.dart';
-import 'package:workspace/features/details_space/presentation/widgets/description_widget.dart';
+import 'package:workspace/core/widgets/booking_success_popup_widget.dart';
+import 'package:workspace/core/widgets/login_required_popup.dart';
+import 'package:workspace/features/details_space/data/model/details_space_model.dart';
+import 'package:workspace/features/details_space/presentation/cubit/details_cubit.dart';
+import 'package:workspace/features/details_space/presentation/widgets/booking_bottom_bar.dart';
+import 'package:workspace/features/details_space/presentation/widgets/details_media.dart';
+import 'package:workspace/features/details_space/presentation/widgets/details_tabs.dart';
 import 'package:workspace/features/details_space/presentation/widgets/information_about_space_widget.dart';
-import 'package:workspace/features/details_space/presentation/widgets/lodding_details_space.dart';
-import 'package:workspace/features/details_space/presentation/widgets/photo_space_widget.dart';
-import 'package:workspace/features/details_space/presentation/widgets/reviews_widget.dart';
-import 'package:workspace/features/details_space/presentation/widgets/subscriotion_widget.dart';
-import 'package:workspace/features/search/presentation/widgets/no_result.dart';
-import 'package:workspace/utils/routing.dart';
-import 'package:animate_do/animate_do.dart'; // Import animate_do
 
-class DetailsSpaceView extends GetView<DetailsSpaceController> {
-  const DetailsSpaceView({super.key});
+class DetailsSpaceView extends StatelessWidget {
+  final int id;
+
+  const DetailsSpaceView({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
-    controller.onInit();
+    return BlocProvider(
+      create: (_) => sl<DetailsCubit>()..load(id),
+      child: const _DetailsBody(),
+    );
+  }
+}
 
-    return Scaffold(
+class _DetailsBody extends StatefulWidget {
+  const _DetailsBody();
+
+  @override
+  State<_DetailsBody> createState() => _DetailsBodyState();
+}
+
+class _DetailsBodyState extends State<_DetailsBody> with TickerProviderStateMixin {
+  final _nav = sl<AppNavigator>();
+  late final TabController _tabController;
+  VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
+  bool _videoInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: detailsTabs.length, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _videoController?.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initVideo(String url) async {
+    if (_videoInitialized) return;
+    _videoInitialized = true;
+    try {
+      _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
+      await _videoController!.initialize();
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        aspectRatio: _videoController!.value.aspectRatio,
+        autoPlay: true,
+        looping: true,
+      );
+      if (mounted) setState(() {});
+    } catch (_) {
+      // فشل تحميل الفيديو — تُعرض الصورة بدلاً منه
+    }
+  }
+
+  void _onState(BuildContext context, DetailsState state) {
+    if (state.status == DetailsStatus.loaded) {
+      final videoUrl = state.model?.data?.spaces?.videoUrl;
+      if (videoUrl != null && videoUrl.isNotEmpty) _initVideo(videoUrl);
+    }
+    if (state.bookingStatus == BookingStatus.success) {
+      context.read<DetailsCubit>().resetBooking();
+      showDialog(context: context, builder: (_) => const BookingSuccessPopup());
+    } else if (state.bookingStatus == BookingStatus.failure) {
+      context.read<DetailsCubit>().resetBooking();
+      showCustomSnackBar(context, state.errorMessage, SnackBarType.error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<DetailsCubit, DetailsState>(
+      listener: _onState,
+      builder: (context, state) {
+        final cubit = context.read<DetailsCubit>();
+        final loading = state.status != DetailsStatus.loaded;
+        final space = state.model?.data?.spaces;
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: _appBar(loading, space),
+          bottomNavigationBar: loading
+              ? null
+              : BookingBottomBar(
+                  isLoading: state.bookingStatus == BookingStatus.loading,
+                  onTap: () => _onBookTap(context, cubit, space!),
+                ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
+              child: Skeletonizer(
+                enabled: loading,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DetailsMedia(
+                      space: loading ? null : space,
+                      chewieController: loading ? null : _chewieController,
+                    ),
+                    loading
+                        ? _loadingInfo()
+                        : InformationAboutSpaceWidget.fromSpace(space!, cubit.availableText()),
+                    SizedBox(height: 24.h),
+                    DetailsTabBar(controller: _tabController),
+                    SizedBox(height: 16.h),
+                    loading
+                        ? const DetailsTabContentLoading()
+                        : DetailsTabContent(
+                            data: state.model?.data,
+                            tabIndex: _tabController.index,
+                          ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  PreferredSizeWidget _appBar(bool loading, Spaces? space) {
+    return AppBar(
       backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0.0,
-        leading: IconButton(onPressed: () => Get.back(), icon: Icon(Icons.arrow_back)),
-        centerTitle: true,
-        title: Obx(
-          () =>
-              controller.loading.isTrue
-                  ? SizedBox.shrink()
-                  : FadeIn(
-                    duration: Duration(milliseconds: 500),
-                    child: Text(
-                      '${controller.listDetailsSpacesData.value?.data?.spaces?.company?.name} - ${controller.listDetailsSpacesData.value?.data?.spaces?.province?.name}',
-                      textAlign: TextAlign.right,
-                      style: GoogleFonts.tajawal(
-                        color: const Color(0xFF212121),
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-        ),
-      ),
-      bottomNavigationBar: Obx(
-        () => Opacity(
-          opacity: controller.loading.isTrue ? 0.2 : 1,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFFF9FAFB), width: 1.w),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromRGBO(0, 0, 0, 0.04),
-                  offset: const Offset(0, -2),
-                  blurRadius: 4,
-                ),
-              ],
+      elevation: 0.0,
+      leading: IconButton(onPressed: _nav.back, icon: const Icon(Icons.arrow_back)),
+      centerTitle: true,
+      title: loading
+          ? const SizedBox.shrink()
+          : Text(
+              '${space?.company?.name} - ${space?.province?.name}',
+              textAlign: TextAlign.right,
+              style: GoogleFonts.tajawal(
+                color: const Color(0xFF212121),
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+    );
+  }
 
-              children: [
-                Center(
-                  child: InkWell(
-                    onTap: () {
-                      if (controller.listDetailsSpacesData.value!.data!.spaces!.company!.type !=
-                              'profit' &&
-                          controller
-                              .listDetailsSpacesData
-                              .value!
-                              .data!
-                              .spaces!
-                              .subscriptions!
-                              .isNotEmpty) {
-                        showModalBottomSheet(
-                          context: context,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                          ),
-                          backgroundColor: const Color(0xFFFAFAFA),
-                          isScrollControlled: false,
-                          builder: (BuildContext context) {
-                            return Container(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  FadeInUp(
-                                    child: Text(
-                                      'نوع الحجز',
-                                      style: GoogleFonts.tajawal(
-                                        color: const Color(0xFF616161),
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 24.h),
-                                  SizedBox(
-                                    height: 75.h, // أو حسب ما يناسبك
-                                    child: ListView.builder(
-                                      itemCount: 2,
-                                      itemBuilder: (context, index) {
-                                        return InkWell(
-                                          onTap: () {
-                                            controller.idTypeBooking.value = index;
-                                          },
-                                          child: Container(
-                                            margin: EdgeInsets.only(bottom: 16.h),
-                                            child: FadeInUp(
-                                              child: Row(
-                                                children: [
-                                                  Obx(
-                                                    () => Container(
-                                                      width: 24.w,
-                                                      height: 24.h,
-                                                      padding: EdgeInsets.all(2.r),
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                          width: 3,
-                                                          color:
-                                                              controller.idTypeBooking.value ==
-                                                                      index
-                                                                  ? const Color(0xFF32B599)
-                                                                  : const Color(0xFFD6F0EB),
-                                                        ),
-                                                        shape: BoxShape.circle,
-                                                      ),
-                                                      child:
-                                                          controller.idTypeBooking.value == index
-                                                              ? Container(
-                                                                decoration: const BoxDecoration(
-                                                                  color: Color(0xFF32B599),
-                                                                  shape: BoxShape.circle,
-                                                                ),
-                                                              )
-                                                              : null,
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 8.w),
-                                                  Text(
-                                                    index == 0
-                                                        ? 'مدفوع - اشتراكات'
-                                                        : 'مجاني - غير ربحي',
-                                                    style: GoogleFonts.tajawal(
-                                                      fontSize: 14.sp,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: const Color(0xFF000000),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  BounceInDown(
-                                    child: InkWell(
-                                      onTap: () {
-                                        if (controller.idTypeBooking.value == 0) {
-                                          Get.toNamed(
-                                            AppRouting.bookingView,
+  void _onBookTap(BuildContext context, DetailsCubit cubit, Spaces space) {
+    // الزائر لا حساب له → اطلب تسجيل الدخول قبل الحجز.
+    final isVisitor = sl<LocalStorage>().readValue<String>(Constants.userType) == 'visitor';
+    if (isVisitor) {
+      showLoginRequiredPopup(context);
+      return;
+    }
 
-                                            arguments: {
-                                              'subscriptions':
-                                                  controller
-                                                      .listDetailsSpacesData
-                                                      .value!
-                                                      .data!
-                                                      .spaces!
-                                                      .subscriptions,
-                                              'space':
-                                                  controller
-                                                      .listDetailsSpacesData
-                                                      .value!
-                                                      .data!
-                                                      .spaces,
-                                            },
-                                            parameters: {
-                                              'id':
-                                                  controller
-                                                      .listDetailsSpacesData
-                                                      .value!
-                                                      .data!
-                                                      .spaces!
-                                                      .id
-                                                      .toString(),
-                                              'is_profit': 'true',
-                                            },
-                                          );
-                                        } else {
-                                          Get.back();
-                                          controller.confirmBookingNonProfit(
-                                            controller
-                                                .listDetailsSpacesData
-                                                .value!
-                                                .data!
-                                                .spaces!
-                                                .id!,
-                                          );
-                                        }
-                                      },
-                                      child: Container(
-                                        height: 44.h,
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 10.h,
-                                          horizontal: 16.w,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF32B599),
-                                          borderRadius: BorderRadius.circular(50.r),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'احجز الان',
-                                              style: GoogleFonts.tajawal(
-                                                color: const Color(0xFFFAFAFA),
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.w500,
-                                                height: 1.0,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      } else if (controller
-                                  .listDetailsSpacesData
-                                  .value!
-                                  .data!
-                                  .spaces!
-                                  .company!
-                                  .type !=
-                              'profit' &&
-                          controller
-                              .listDetailsSpacesData
-                              .value!
-                              .data!
-                              .spaces!
-                              .subscriptions!
-                              .isEmpty) {
-                        controller.confirmBookingNonProfit(
-                          controller.listDetailsSpacesData.value!.data!.spaces!.id!,
-                        );
-                      } else {
-                        Get.toNamed(
-                          AppRouting.bookingView,
+    final isNonProfit = space.company?.type != 'profit';
+    final hasSubscriptions = space.subscriptions?.isNotEmpty ?? false;
 
-                          arguments: {
-                            'subscriptions':
-                                controller.listDetailsSpacesData.value!.data!.spaces!.subscriptions,
-                            'space': controller.listDetailsSpacesData.value!.data!.spaces,
-                          },
-                          parameters: {
-                            'id':
-                                controller.listDetailsSpacesData.value!.data!.spaces!.id.toString(),
-                            'is_profit': 'true',
-                          },
-                        );
-                      }
-                      // controller.showTypeBooking.value = true;
+    if (isNonProfit && hasSubscriptions) {
+      showBookingTypeSheet(
+        context,
+        onPaid: () => _goToBooking(space),
+        onFree: () => cubit.confirmNonProfit(space.id!),
+      );
+    } else if (isNonProfit && !hasSubscriptions) {
+      cubit.confirmNonProfit(space.id!);
+    } else {
+      _goToBooking(space);
+    }
+  }
 
-                      // controller.listDetailsSpacesData.value!.data!.spaces!.company!.type ==
-                      //         'profit'
-                      //     ?
-                      //     :  controller.confirmBookingNonProfit(controller.listDetailsSpacesData.value!.data!.spaces!.id!);
-                    },
-                    child: Obx(
-                      () =>
-                          controller.loadingNonProfit.isTrue
-                              ? Center(child: CircularProgressIndicator(color: AppColors.primary))
-                              : Container(
-                                height: 44.h,
-                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+  void _goToBooking(Spaces space) {
+    _nav.toBooking(
+      arguments: {'subscriptions': space.subscriptions, 'space': space},
+      parameters: {'id': space.id.toString(), 'is_profit': 'true'},
+    );
+  }
 
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF32B599),
-                                  borderRadius: BorderRadius.circular(50.r),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'احجز الان',
-                                    style: GoogleFonts.tajawal(
-                                      color: Colors.white,
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Obx(
-                () =>
-                    controller.loading.isTrue
-                        ? LoddingDetailsSpace().videoLodding
-                        : FadeInUp(
-                          duration: Duration(milliseconds: 500),
-                          child: Container(
-                            width: double.infinity,
-                            height: 167.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              color: const Color(0xFFFAFAFA),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(4.r),
-                              child:
-                                  controller.listDetailsSpacesData.value!.data!.spaces!.videoUrl ==
-                                          null
-                                      ? CachedNetworkImage(
-                                        imageUrl:
-                                            controller
-                                                .listDetailsSpacesData
-                                                .value!
-                                                .data!
-                                                .spaces!
-                                                .mainImageUrl
-                                                .toString(),
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        placeholder:
-                                            (context, url) => Center(
-                                              child: Image.asset(
-                                                AppImage.logoImage,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                        errorWidget:
-                                            (context, url, error) => Center(
-                                              child: Image.asset(
-                                                AppImage.logoImage,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                      )
-                                      : Chewie(controller: controller.chewieController!),
-                            ),
-                          ),
-                        ),
-              ),
-              // Information Space
-              Obx(
-                () =>
-                    controller.loading.isTrue
-                        ? LoddingDetailsSpace().informationLoading()
-                        : InformationAboutSpaceWidget(
-                          nameSpace:
-                              controller.listDetailsSpacesData.value?.data?.spaces?.company?.name ??
-                              '-',
-                          typeTitle:
-                              controller
-                                  .listDetailsSpacesData
-                                  .value
-                                  ?.data
-                                  ?.spaces
-                                  ?.company
-                                  ?.typeTitle ??
-                              '-',
-                          ratingCount:
-                            '${controller.listDetailsSpacesData.value?.data?.spaces?.customerRatingAverages?.length ?? '0'}',
-                          ratingAverage:
-                              '${controller.listDetailsSpacesData.value?.data?.spaces?.ratingAverage ?? '0'}',
-                          address:
-                              controller.listDetailsSpacesData.value?.data?.spaces?.address ?? '-',
-                          available:
-                              '${controller.formatTime(controller.listDetailsSpacesData.value?.data?.spaces?.availableFrom)} - ${controller.formatTime(controller.listDetailsSpacesData.value?.data?.spaces?.availableTo)}',
-                          mobile:
-                              controller.listDetailsSpacesData.value?.data?.spaces?.mobile ?? '-',
-                          eamil: controller.listDetailsSpacesData.value?.data?.spaces?.email ?? '-',
-                          customersCount:
-                              '${controller.listDetailsSpacesData.value?.data?.spaces?.customersCount ?? '0'}',
-                          nameCompany:
-                              controller
-                                  .listDetailsSpacesData
-                                  .value
-                                  ?.data
-                                  ?.spaces
-                                  ?.company
-                                  ?.user
-                                  ?.name ??
-                              '-',
-                          imageCompany:
-                              controller
-                                  .listDetailsSpacesData
-                                  .value
-                                  ?.data
-                                  ?.spaces
-                                  ?.company
-                                  ?.imageUrl ??
-                              '',
-                        ),
-              ),
-              SizedBox(height: 24.h),
-              Obx(
-                () =>
-                    controller.loading.isTrue
-                        ? LoddingDetailsSpace().sectionDetailsSpaceLoading
-                        : FadeInUp(
-                          duration: Duration(milliseconds: 1500),
-
-                          child: TabBar(
-                            indicatorPadding: EdgeInsets.symmetric(horizontal: 1.w),
-                            padding: EdgeInsets.symmetric(horizontal: 1.w),
-                            labelPadding: EdgeInsets.symmetric(horizontal: 1.w),
-                            controller: controller.tabController,
-                            labelColor: AppColors.primary,
-                            unselectedLabelColor: const Color(0xFF616161),
-                            indicatorColor: AppColors.primary,
-                            indicatorWeight: 1.w,
-                            dividerColor: Colors.transparent,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            labelStyle: GoogleFonts.tajawal(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            unselectedLabelStyle: GoogleFonts.tajawal(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            tabs: controller.tabs.map((t) => Text(t)).toList(),
-                          ),
-                        ),
-              ),
-              SizedBox(height: 16.h),
-              Obx(
-                () =>
-                    controller.loading.isTrue
-                        ? Column(
-                          children: [
-                            LoddingDetailsSpace().buildTextShimmer(),
-                            SizedBox(height: 16.h),
-                            HomeShimmerView().spaceCard(width: double.infinity),
-                          ],
-                        )
-                        : GetBuilder<DetailsSpaceController>(
-                          builder: (controller) {
-                            final currentTab = controller.tabController.index;
-                            switch (currentTab) {
-                              case 0:
-                                return FadeInUp(
-                                  duration: Duration(milliseconds: 1600),
-                                  child:
-                                      controller
-                                              .listDetailsSpacesData
-                                              .value!
-                                              .data!
-                                              .spaces!
-                                              .content!
-                                              .isNotEmpty
-                                          ? DescriptionWidget(
-                                            text:
-                                                controller
-                                                    .listDetailsSpacesData
-                                                    .value
-                                                    ?.data
-                                                    ?.spaces
-                                                    ?.content ??
-                                                '',
-                                                suggestSpaces: controller.listDetailsSpacesData.value?.data?.suggestSpaces ?? [],
-                                          )
-                                          : NoResult(
-
-                                          ),
-                                );
-                              case 1:
-                                return FadeInUp(
-                                  duration: Duration(milliseconds: 1700),
-                                  child:
-                                      controller
-                                              .listDetailsSpacesData
-                                              .value!
-                                              .data!
-                                              .spaces!
-                                              .imagesUrl!
-                                              .isNotEmpty
-                                          ? PhotoSpaceWidget(
-                                            image:
-                                                controller
-                                                    .listDetailsSpacesData
-                                                    .value
-                                                    ?.data
-                                                    ?.spaces
-                                                    ?.imagesUrl ??
-                                                [],
-                                          )
-                                          : NoResult(
-                                            text: 'هذه المساحة لا تحتوي على صور مرفقة في الوقت الحالي',
-                                          ),
-                                );
-                              case 2:
-                                return FadeInUp(
-                                  duration: Duration(milliseconds: 1800),
-                                  child:
-                                      controller
-                                              .listDetailsSpacesData
-                                              .value!
-                                              .data!
-                                              .spaces!
-                                              .subscriptions!
-                                              .isNotEmpty
-                                          ? SubscriotionWidget(
-                                            subscriptions:
-                                                controller
-                                                    .listDetailsSpacesData
-                                                    .value!
-                                                    .data!
-                                                    .spaces!
-                                                    .subscriptions!,
-                                          )
-                                          : NoResult(
-                                            text: 'عذرًا، لا تتوفر تفاصيل لهذه المساحة حاليًا',
-                                          ),
-                                );
-                              case 3:
-                                return FadeInUp(
-                                  duration: Duration(milliseconds: 1900),
-                                  child: controller
-                                              .listDetailsSpacesData
-                                              .value!
-                                              .data!
-                                              .spaces!
-                                        .customerRatingAverages!.isNotEmpty
-                                    ?
-
-                                   ReviewsWidget(evaluations: controller
-                                              .listDetailsSpacesData
-                                              .value!
-                                              .data!
-                                              .spaces!
-                                              .customerRatingAverages ??
-                                            [])
-                                    : NoResult(
-                                                 text: 'هذه المساحة لا تحتوي على تقييمات في الوقت الحالي',
-                                              ),
-                                );
-                              default:
-                                return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  /// معلومات وهمية تُعرض كهيكل عظمي أثناء التحميل.
+  Widget _loadingInfo() {
+    return const InformationAboutSpaceWidget(
+      nameSpace: 'مساحة عمل اريستو',
+      typeTitle: 'مشتركة',
+      ratingCount: '12',
+      ratingAverage: '4.5',
+      address: 'غزة - شارع الجلاء',
+      available: '09:00 صباحًا - 05:00 مساءً',
+      mobile: '0591234567',
+      email: 'info@aristospace.com',
+      customersCount: '20',
+      nameCompany: 'محمد عبد الله',
+      imageCompany: '',
     );
   }
 }

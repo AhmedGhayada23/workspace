@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:workspace/features/booking/presentation/views/confirm_booking_view.dart';
 import 'package:workspace/features/booking/presentation/widgets/booking_row_widget.dart';
+import 'package:workspace/features/booking/presentation/widgets/dotted_line_widget.dart';
 import 'package:workspace/features/my_reservations/data/models/details_resevation_model.dart';
 
 class ProfitBookingDetailsWidget extends StatelessWidget {
   final Reservation reservation;
   final Subscription? subscription;
-  const ProfitBookingDetailsWidget({super.key, required this.reservation,required this.subscription});
+  const ProfitBookingDetailsWidget(
+      {super.key, required this.reservation, required this.subscription});
 
   @override
   Widget build(BuildContext context) {
@@ -16,24 +16,32 @@ class ProfitBookingDetailsWidget extends StatelessWidget {
       children: [
         Container(
           padding: EdgeInsets.symmetric(vertical: 16.h),
-
           decoration: BoxDecoration(
             color: Color(0xFFFAFAFA),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Column(
             children: [
-              BookingRowWidget(title: 'نوع الاشتراك', value: subscription?.typeTitle ?? ''),
+              BookingRowWidget(
+                  title: 'نوع الاشتراك', value: subscription?.typeTitle ?? ''),
               DottedLineWidget(),
-              BookingRowWidget(title: 'عدد المقاعد', value: '${reservation.seatsCount ?? 0}'),
+              BookingRowWidget(
+                  title: 'عدد المقاعد',
+                  value: '${reservation.seatsCount ?? 0}'),
               DottedLineWidget(),
-              BookingRowWidget(title: 'تاريخ البدء', value: reservation.startDate ?? ''),
+              BookingRowWidget(
+                  title: 'تاريخ البدء', value: reservation.startDate ?? ''),
               DottedLineWidget(),
-              BookingRowWidget(title: 'تاريخ الانتهاء', value: reservation.endDate ?? ''),
+              BookingRowWidget(
+                  title: 'تاريخ الانتهاء', value: reservation.endDate ?? ''),
               DottedLineWidget(),
-              BookingRowWidget(title: 'وقت البدء', value: formatTime(reservation.startTime ?? '')),
+              BookingRowWidget(
+                  title: 'وقت البدء',
+                  value: formatTime(reservation.startTime ?? '')),
               DottedLineWidget(),
-              BookingRowWidget(title: 'وقت الانتهاء', value: formatTime(reservation.endTime ?? '')),
+              BookingRowWidget(
+                  title: 'وقت الانتهاء',
+                  value: formatTime(reservation.endTime ?? '')),
             ],
           ),
         ),

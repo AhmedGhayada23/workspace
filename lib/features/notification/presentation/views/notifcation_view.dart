@@ -1,184 +1,170 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/features/bottom_navigation_bar/controllers/btn_nav_controller.dart';
-import 'package:workspace/features/notification/controllers/notifcation_controller.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:workspace/features/notification/data/model/notification_model.dart' as model;
-import 'package:workspace/features/notification/presentation/widgets/loading_notifcation.dart'; // استيراد مكتبة animate_do
+import 'package:workspace/features/notification/data/model/notification_model.dart';
+import 'package:workspace/features/notification/presentation/cubit/notifications_cubit.dart';
+import 'package:workspace/features/notification/presentation/widgets/notification_item_widget.dart';
 
-class NotifcationView extends GetView<NotifcationController> {
+/// إشعار وهمي يُعرض كهيكل عظمي (Skeleton) أثناء التحميل.
+final _fakeNotification = Notifications.fromJson({
+  'title': 'تم تأكيد الحجز',
+  'body': 'تم تأكيد حجزك بنجاح في المساحة المطلوبة خلال الفترة المحددة.',
+  'data': {'company_name': 'شركة المساحات اريستو'},
+  'created_at': '2026-01-01 09:00:00 am',
+});
+
+class NotifcationView extends StatelessWidget {
   const NotifcationView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(NotifcationController());
+    return BlocProvider(
+      create: (_) => sl<NotificationsCubit>()..loadFirstPage(),
+      child: const _NotifcationBody(),
+    );
+  }
+}
+
+class _NotifcationBody extends StatefulWidget {
+  const _NotifcationBody();
+
+  @override
+  State<_NotifcationBody> createState() => _NotifcationBodyState();
+}
+
+class _NotifcationBodyState extends State<_NotifcationBody> {
+  final _nav = sl<AppNavigator>();
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      context.read<NotificationsCubit>().loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<NotificationsCubit>();
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         centerTitle: true,
-        title: FadeInDown(
-          child: Text(
-            'الاشعارات',
-            style: GoogleFonts.tajawal(
-              color: Color(0xFF212121),
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-            ),
+        title: Text(
+          'الاشعارات',
+          style: GoogleFonts.tajawal(
+            color: const Color(0xFF212121),
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        leading: FadeInDown(
-          child: IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(Icons.arrow_back, size: 24.r, color: Color(0xFF212121)),
-          ),
+        leading: IconButton(
+          onPressed: _nav.back,
+          icon: Icon(Icons.arrow_back, size: 24.r, color: const Color(0xFF212121)),
         ),
-
         actions: [
-          Obx(
-            ()=> IconButton(
-            onPressed: () {
-              controller.hasUnread.value ? controller.readNotifications() : null;
+          BlocBuilder<NotificationsCubit, NotificationsState>(
+            buildWhen: (p, c) => p.hasUnread != c.hasUnread,
+            builder: (context, state) {
+              return IconButton(
+                onPressed: state.hasUnread ? cubit.markAllAsRead : null,
+                icon: SvgPicture.asset(
+                  AppSvg.readSvg,
+                  colorFilter: ColorFilter.mode(
+                    state.hasUnread ? AppColors.primary : const Color(0xFFBDBDBD),
+                    BlendMode.srcIn,
+                  ),
+                ),
+              );
             },
-            icon: SvgPicture.asset(
-              AppSvg.readSvg,
-              colorFilter: ColorFilter.mode(
-                controller.hasUnread.value ? AppColors.primary : Color(0xFFBDBDBD),
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
           ),
         ],
       ),
-      body: PagedListView<int, model.Notifications>(
-        pagingController: controller.pagingController,
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-        builderDelegate: PagedChildBuilderDelegate<model.Notifications>(
-          itemBuilder: (context, notification, index) {
-            return FadeInUp(
-              duration: Duration(milliseconds: 600),
-              child: InkWell(
-                onTap: ()=> Get.find<BtnNavController>().pushNavigationBar(1),
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 16.h),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFFAFAFA),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  padding: EdgeInsets.all(16.r),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FadeInDown(
-                        duration: Duration(milliseconds: 700),
-                        child: Row(
-                          children: [
-                            Text(
-                              '${notification.title ?? ''} - ${notification.data?.companyName ?? ''}',
-                              style: GoogleFonts.tajawal(
-                                color: Color(0xFF212121),
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                            Spacer(),
-                            notification.readAt == null
-                                ? CircleAvatar(radius: 4.r, backgroundColor: AppColors.primary)
-                                : SizedBox.shrink(),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      FadeInUp(
-                        duration: Duration(milliseconds: 700),
-                        child: Text(
-                          notification.body ?? '',
-                          style: GoogleFonts.tajawal(
-                            color: Color(0xFF757575),
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-
-                      FadeInUp(
-                        duration: Duration(milliseconds: 800),
-                        child: Row(
-                          children: [
-                            Spacer(),
-                            Text(
-                              controller.timeAgo(notification.createdAt ?? ''),
-
-                              style: GoogleFonts.tajawal(
-                                color: Color(0xFF757575),
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      //   if (notification. ?? false)
-                      // BounceInUp(
-                      //   duration: Duration(milliseconds: 900),
-                      //   child: Row(
-                      //     children: [
-                      //       Spacer(),
-                      //       ElevatedButton(
-                      //         onPressed: () {
-                      //           // TODO: تنفيذ إجراء التقييم
-                      //         },
-                      //         style: ElevatedButton.styleFrom(
-                      //           backgroundColor: Color(0xFF32B599),
-                      //           shape: RoundedRectangleBorder(
-                      //             borderRadius: BorderRadius.circular(50),
-                      //           ),
-                      //           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-                      //         ),
-                      //         child: Text(
-                      //           'قيم المساحة',
-                      //           style: GoogleFonts.tajawal(
-                      //             color: Colors.white,
-                      //             fontSize: 16.sp,
-                      //             fontWeight: FontWeight.w500,
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
-                  ),
+      body: BlocBuilder<NotificationsCubit, NotificationsState>(
+        builder: (context, state) {
+          if (state.status == NotificationsStatus.loading ||
+              state.status == NotificationsStatus.initial) {
+            return Skeletonizer(
+              enabled: true,
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+                itemCount: 5,
+                itemBuilder: (context, index) => NotificationItemWidget(
+                  notification: _fakeNotification,
+                  timeAgo: 'قبل ساعة',
+                  onTap: () {},
                 ),
               ),
             );
-          },
-          firstPageProgressIndicatorBuilder:
-              (_) => Column(
-                children: List.generate(
-                  3,
-                  (index) => LoadingNotifcation().buildNotificationShimmer(),
-                ),
+          }
+          if (state.items.isEmpty) {
+            return RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: cubit.loadFirstPage,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: 200.h),
+                  Center(
+                    child: Text('لا توجد إشعارات حاليًا',
+                        style: GoogleFonts.tajawal(fontSize: 16.sp)),
+                  ),
+                ],
               ),
-          newPageProgressIndicatorBuilder: (_) => Center(child: CircularProgressIndicator()),
-          noItemsFoundIndicatorBuilder:
-              (_) => Center(
-                child: Text('لا توجد إشعارات حاليًا', style: GoogleFonts.tajawal(fontSize: 16.sp)),
-              ),
-          noMoreItemsIndicatorBuilder: (_) => SizedBox(height: 32.h),
-        ),
+            );
+          }
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: cubit.loadFirstPage,
+            child: ListView.builder(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              itemCount: state.items.length + 1,
+            itemBuilder: (context, index) {
+              if (index == state.items.length) {
+                return state.loadingMore
+                    ? Padding(
+                        padding: EdgeInsets.all(16.r),
+                        child: const Center(
+                          child: SpinKitFadingCircle(color: AppColors.primary, size: 40),
+                        ),
+                      )
+                    : SizedBox(height: 8.h);
+              }
+              final item = state.items[index];
+              return NotificationItemWidget(
+                notification: item,
+                timeAgo: cubit.timeAgo(item.createdAt ?? ''),
+                onTap: () => _nav.offAllToHomeTab(1),
+              );
+            },
+            ),
+          );
+        },
       ),
     );
   }

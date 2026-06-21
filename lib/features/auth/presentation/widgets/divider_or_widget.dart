@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/utils.dart';
+import 'package:workspace/core/localization/app_tr.dart';
 import 'package:workspace/core/theme/text_styles.dart';
 
 class OrDividerWidget extends StatelessWidget {

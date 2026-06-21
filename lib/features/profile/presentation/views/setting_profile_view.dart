@@ -1,23 +1,97 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:workspace/core/animated/animated_dropdown.dart';
-import 'package:workspace/core/animated/text_field_animated.dart';
+import 'package:workspace/core/di/injection_container.dart';
 import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/core/styles/app_image.dart';
+import 'package:workspace/core/theme/text_styles.dart';
 import 'package:workspace/core/widgets/text_field_widget.dart';
-import 'package:workspace/features/bottom_navigation_bar/controllers/btn_nav_controller.dart';
-import 'package:workspace/features/profile/controllers/setting_profile_controller.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_type_dropdown.dart';
+import 'package:workspace/features/profile/presentation/cubit/profile/profile_cubit.dart';
+import 'package:workspace/features/profile/presentation/cubit/setting_profile/setting_profile_cubit.dart';
+import 'package:workspace/features/profile/presentation/widgets/profile_form_widgets.dart';
 import 'package:workspace/utils/validators.dart';
 
-class SettingProfileView extends GetView<SettingProfileController> {
+const _settingUserTypes = {
+  'طالب': 'student',
+  'موظف': 'employee',
+  'مستقل': 'independent',
+};
+
+/// التسمية العربية المقابلة لقيمة النوع القادمة من الخادم (أو null إن لم تطابق).
+String? _labelForType(String serverType) {
+  for (final e in _settingUserTypes.entries) {
+    if (e.value == serverType) return e.key;
+  }
+  return null;
+}
+
+class SettingProfileView extends StatelessWidget {
   const SettingProfileView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<SettingProfileCubit>()..load(),
+      child: const _SettingProfileBody(),
+    );
+  }
+}
+
+class _SettingProfileBody extends StatefulWidget {
+  const _SettingProfileBody();
+
+  @override
+  State<_SettingProfileBody> createState() => _SettingProfileBodyState();
+}
+
+class _SettingProfileBodyState extends State<_SettingProfileBody> {
+  final _nav = sl<AppNavigator>();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _nextFocus = FocusNode();
+  bool _initialized = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _nextFocus.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<SettingProfileCubit>().submit(
+            name: _nameController.text,
+            email: _emailController.text,
+            mobile: _phoneController.text,
+          );
+    }
+  }
+
+  void _onState(BuildContext context, SettingProfileState state) {
+    // تعبئة الحقول مرة واحدة عند جاهزية البيانات.
+    if (state.formStatus == SettingFormStatus.ready && !_initialized) {
+      _initialized = true;
+      _nameController.text = state.name;
+      _phoneController.text = state.mobile;
+      _emailController.text = state.email;
+    }
+    if (state.submitStatus == SubmitStatus.success) {
+      showCustomSnackBar(context, state.message, SnackBarType.success);
+      sl<ProfileCubit>().load(); // تحديث بيانات الحساب بعد الحفظ
+      context.read<SettingProfileCubit>().clearSubmit();
+    } else if (state.submitStatus == SubmitStatus.failure) {
+      showCustomSnackBar(context, state.message, SnackBarType.error);
+      context.read<SettingProfileCubit>().clearSubmit();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,130 +100,104 @@ class SettingProfileView extends GetView<SettingProfileController> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(Icons.arrow_back, size: 24.r)),
+            onPressed: _nav.back, icon: Icon(Icons.arrow_back, size: 24.r)),
         centerTitle: true,
         title: Text(
           'حسابي',
-          textAlign: TextAlign.right,
           style: GoogleFonts.tajawal(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF212121),
+            color: const Color(0xFF212121),
           ),
         ),
       ),
-      body: Form(
-        key: controller.settingProfileFormKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(24.r),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                FadeIn(
-                  duration: Duration(milliseconds: 500),
-                  child: InkWell(
-                    onTap: () => controller.showTakePhoto(context),
-                    child: Center(
-                      child: Obx(
-                        ()=> Container(
-                          width: 78.w,
-                          height: 77.h,
-                          padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 26),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                const Color.fromRGBO(0, 0, 0, 0.2),
-                                const Color.fromRGBO(0, 0, 0, 0.2),
-                              ],
-                            ),
-                            image: controller.imageFile.value != null ? DecorationImage(image:  FileImage(controller.imageFile.value!),fit: BoxFit.cover) : Get.parameters['image'] != '' ? DecorationImage(image:  NetworkImage(Get.parameters['image'].toString()),) : null,
-                          ),
-                          child: SvgPicture.asset(AppSvg.cameraSvg,width: 24.w,height: 24.h,color: AppColors.white,),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 32.h),
-                AutofillGroup(child:
-
-                Column(
+      body: BlocConsumer<SettingProfileCubit, SettingProfileState>(
+        listener: _onState,
+        builder: (context, state) {
+          if (state.formStatus != SettingFormStatus.ready) {
+            return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary));
+          }
+          final cubit = context.read<SettingProfileCubit>();
+          return Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(24.r),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-           ...animatedField(1,  'الاسم كامل', '', null,TextInputType.text,[AutofillHints.name],TextInputAction.go,null,controller.fullNameSettingProfileTextEditingController,(value) => Validators.required(value, fieldName: 'الاسم')),
-
-                ...animatedDropdown(2,
-                controller.typeTitle.value,
-                controller.userTypes.keys.toList(),
-              (value) => Validators.required(value),
-                                  (value) {
-                                    FocusScope.of(context).requestFocus(controller.nextFieldFocus);
-                                    controller.types.value =
-                                        controller.userTypes[value]!; // تخزين القيمة الإنجليزية
-                                    log('user type :: ${controller.userTypes[value]!}');
-                                  },),
-              ...animatedField(3,  'رقم الهاتف', '', null, TextInputType.phone,[AutofillHints.telephoneNumber],TextInputAction.next,controller.nextFieldFocus,controller.phoneSettingProfileTextEditingController,Validators.phone),
-              ...animatedField(4,   'البريد الالكتروني', '', null, TextInputType.emailAddress,[AutofillHints.email],TextInputAction.done,null,controller.emailSettingProfileTextEditingController,Validators.email),
-
-                  ],
-                )
-                ),
-
-
-
-
-
-
-
-                SizedBox(height: 22.h),
-                Obx(
-                  ()=> controller.loading.isTrue ?
-                  Center(
-                                      child: CircularProgressIndicator(color: AppColors.primary),
-                                    ) :
-                   ZoomIn(
-                    duration: Duration(milliseconds: 500),
-                    child: InkWell(
-                      onTap: () => controller.submitSettingProfile(),
-                      child: Center(
-                        child: Container(
-                          height: 44.h,
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF32B599),
-                            borderRadius: BorderRadius.circular(50.r),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(AppSvg.editSvg, color: AppColors.white),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'حفظ التعديلات',
-                                style: GoogleFonts.tajawal(
-                                  color: Colors.white,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                    SettingAvatarPicker(
+                      networkUrl: state.networkImageUrl,
+                      localPath: state.imagePath,
+                      onTap: () => showChangePhotoSheet(
+                        context,
+                        onCamera: cubit.pickFromCamera,
+                        onGallery: cubit.pickFromGallery,
                       ),
                     ),
-                  ),
+                    SizedBox(height: 32.h),
+                    AutofillGroup(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('الاسم كامل', style: AppTextStyles.body),
+                          SizedBox(height: 8.h),
+                          TextFieldWidgets(
+                            controller: _nameController,
+                            hint: '',
+                            autofillHints: const [AutofillHints.name],
+                            validator: (value) =>
+                                Validators.required(value, fieldName: 'الاسم'),
+                          ),
+                          SizedBox(height: 16.h),
+                          AuthTypeDropdown(
+                            items: _settingUserTypes.keys.toList(),
+                            initialItem: _labelForType(state.type),
+                            validator: (value) => Validators.required(value),
+                            onChanged: (value) {
+                              FocusScope.of(context).requestFocus(_nextFocus);
+                              cubit.setType(_settingUserTypes[value]!);
+                            },
+                          ),
+                          SizedBox(height: 16.h),
+                          Text('رقم الهاتف', style: AppTextStyles.body),
+                          SizedBox(height: 8.h),
+                          TextFieldWidgets(
+                            controller: _phoneController,
+                            hint: '',
+                            focusNode: _nextFocus,
+                            keyboardType: TextInputType.phone,
+                            autofillHints: const [
+                              AutofillHints.telephoneNumber
+                            ],
+                            validator: Validators.phone,
+                          ),
+                          SizedBox(height: 16.h),
+                          Text('البريد الالكتروني', style: AppTextStyles.body),
+                          SizedBox(height: 8.h),
+                          TextFieldWidgets(
+                            controller: _emailController,
+                            hint: '',
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
+                            validator: Validators.email,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 22.h),
+                    ProfileSaveButton(
+                      label: 'حفظ التعديلات',
+                      loading: state.submitStatus == SubmitStatus.loading,
+                      onTap: _submit,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

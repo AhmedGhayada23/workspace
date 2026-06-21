@@ -1,11 +1,11 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
-import 'package:get/route_manager.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:workspace/core/config/constants.dart';
 import 'package:workspace/core/config/storage/dio_exceptions.dart';
 import 'package:workspace/core/config/storage/local_storage.dart';
 import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_router.dart';
 import 'package:workspace/utils/routing.dart';
 
 class RemoteConnectionDio {
@@ -43,9 +43,13 @@ class RemoteConnectionDio {
             LocalStorage().removeKey(Constants.token);
             // تنفيذ إجراء عند ظهور 401
             log('Unauthorized - 401');
-            Get.offAllNamed(AppRouting.signInView);
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              AppRouting.signInView,
+              (_) => false,
+              arguments: const RouteArgs(),
+            );
             showCustomSnackBar(
-              Get.context!,
+              navigatorKey.currentContext!,
               'انتهت الجسلة يرجى تسجيل الدخول مجددًا',
               SnackBarType.warning,
             );

@@ -1,15 +1,37 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:workspace/core/config/constants.dart';
+import 'package:workspace/core/config/storage/local_storage.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/features/splash/controllers/loading_controller.dart';
 
-class LoadingView extends GetView<LoadingController> {
+class LoadingView extends StatefulWidget {
   const LoadingView({super.key});
+
+  @override
+  State<LoadingView> createState() => _LoadingViewState();
+}
+
+class _LoadingViewState extends State<LoadingView> {
+  @override
+  void initState() {
+    super.initState();
+    _decideNextRoute();
+  }
+
+  Future<void> _decideNextRoute() async {
+    // وقت بسيط لإظهار شاشة التحميل بسلاسة (انتقال سلس من الـ native splash).
+    await Future.delayed(const Duration(milliseconds: 2200));
+    if (!mounted) return;
+    final hasToken = sl<LocalStorage>().readValue(Constants.token) != null;
+    hasToken
+        ? sl<AppNavigator>().offAllToHome()
+        : sl<AppNavigator>().offAllToSplash();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,51 +44,18 @@ class LoadingView extends GetView<LoadingController> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(flex: 3),
-            // الشعار في المنتصف — مطابق للـ native splash لانتقال سلس
-            FadeInDown(
-              duration: const Duration(milliseconds: 700),
-              child: Image.asset(
-                AppImage.splashLogoImage,
-                width: 225.w,
-                fit: BoxFit.contain,
-              ),
-            ),
-            SizedBox(height: 16.h),
-            FadeIn(
-              delay: const Duration(milliseconds: 400),
-              duration: const Duration(milliseconds: 600),
-              child: Text(
-                'Areisto Space',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.tajawal(
-                  color: AppColors.white,
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            Image.asset(AppImage.splashLogoImage,
+                width: 225.w, fit: BoxFit.contain),
             const Spacer(flex: 2),
-            // مؤشر التحميل
-            FadeInUp(
-              delay: const Duration(milliseconds: 500),
-              duration: const Duration(milliseconds: 600),
-              child: SpinKitThreeBounce(
-                color: AppColors.white,
-                size: 28.w,
-              ),
-            ),
+            SpinKitThreeBounce(color: AppColors.white, size: 28.w),
             SizedBox(height: 14.h),
-            FadeInUp(
-              delay: const Duration(milliseconds: 600),
-              duration: const Duration(milliseconds: 600),
-              child: Text(
-                'جارٍ التحميل...',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.tajawal(
-                  color: const Color(0xFFEEEEEE),
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),
+            Text(
+              'جارٍ التحميل...',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.tajawal(
+                color: const Color(0xFFEEEEEE),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(height: 48.h),

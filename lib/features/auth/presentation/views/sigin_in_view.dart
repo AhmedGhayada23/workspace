@@ -1,214 +1,153 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:workspace/core/animated/text_field_animated.dart';
-import 'package:workspace/core/config/storage/local_storage.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/localization/app_tr.dart';
+import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/core/theme/text_styles.dart';
-import 'package:workspace/features/auth/controllers/sign_in_controller.dart';
+import 'package:workspace/features/auth/presentation/cubit/sign_in/sign_in_cubit.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_password_field.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_scaffold.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:workspace/features/auth/presentation/widgets/button_login_widget.dart';
 import 'package:workspace/features/auth/presentation/widgets/button_with_google_widget.dart';
 import 'package:workspace/features/auth/presentation/widgets/divider_or_widget.dart';
+import 'package:workspace/features/auth/presentation/widgets/google_type_popup.dart';
 import 'package:workspace/features/auth/presentation/widgets/remember_me_and_Forgot_password_widget.dart';
 import 'package:workspace/features/auth/presentation/widgets/sign_up_prompt_widget.dart';
-import 'package:workspace/core/widgets/text_field_widget.dart';
-import 'package:workspace/utils/routing.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:workspace/utils/validators.dart';
 
-class SiginInView extends GetView<SignInController> {
+class SiginInView extends StatelessWidget {
   const SiginInView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: Form(
-        key: controller.signInFormKey,
-        child: Container(
-          color: AppColors.primary,
-          child: Column(
-            children: [
-              SizedBox(height: 45.h),
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                child: Center(child: Image.asset(AppImage.logoImage)),
-              ),
-              SizedBox(height: 56.h),
-              FadeInDown(
-                duration: Duration(milliseconds: 600),
-                delay: Duration(milliseconds: 200),
-                child: SignUpPromptWidget(
-                  title: 'dont_Have_An_account'.tr,
-                  btuTitle: 'sign_up_now'.tr,
-                  onTap: () => Get.offNamed(AppRouting.signUpView),
-                ),
-              ),
-              SizedBox(height: 24.h),
-              Container(
-                height: 16.h,
-                margin: EdgeInsets.symmetric(horizontal: 35.w),
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(20, 255, 255, 255),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24.r),
-                    topRight: Radius.circular(24.r),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24.r),
-                      topRight: Radius.circular(24.r),
-                    ),
-                  ),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AutofillGroup(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ...animatedField(
-                                  1,
-                                  'email'.tr,
-                                  'AreistoSpace@gmail.com',
-                                  AppSvg.smsSvg,
-                                  TextInputType.emailAddress,
-                                  [AutofillHints.email],
-                                  TextInputAction.next,
-                                  null,
-                                  controller.emailSignInTextEditingController,
-                                  Validators.email,
-                                ),
-                                _animatedPasswordField(
-                                  2,
-                                  'password'.tr,
-                                  [AutofillHints.password],
-                                  TextInputAction.done,
-                                  controller
-                                      .passwordSignInTextEditingController,
-                                  (value) => Validators.minLength(value, 6,
-                                      fieldName: 'كلمة المرور'),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 600),
-                            delay: Duration(milliseconds: 700),
-                            child: Obx(
-                              () => RememberMeAndForgotPasswordWidget(
-                                isChecked: controller.isChecked.value,
-                                onChanged: (value) {
-                                  controller.isChecked.value = value!;
-                                  controller.loginRemembar();
-                                },
-                                onForgotPassword: () =>
-                                    Get.offNamed(AppRouting.resetPasswordView),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-                          Obx(
-                            () => controller.loading.isTrue
-                                ? Center(
-                                    child: CircularProgressIndicator(
-                                        color: AppColors.primary),
-                                  )
-                                : FadeInUp(
-                                    duration: Duration(milliseconds: 600),
-                                    delay: Duration(milliseconds: 800),
-                                    child: ButtonLoginWidget(
-                                      text: 'login'.tr,
-                                      onTap: () => controller.submitSignIn(),
-                                    ),
-                                  ),
-                          ),
-                          SizedBox(height: 16.h),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 600),
-                            delay: Duration(milliseconds: 900),
-                            child: OrDividerWidget(),
-                          ),
-                          SizedBox(height: 16.h),
-                          FadeInUp(
-                            duration: Duration(milliseconds: 600),
-                            delay: Duration(milliseconds: 1000),
-                            child: ButtonWithGoogleWidget(
-                              onTap: () => controller.signInWithGoogle(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return BlocProvider(
+      create: (_) => sl<SignInCubit>(),
+      child: const _SignInBody(),
     );
   }
+}
 
-  Widget _animatedPasswordField(
-    int index,
-    String label,
-    Iterable<String>? autofillHints,
-    TextInputAction? textInputAction,
-    TextEditingController? textEditingController,
-    String? Function(String?)? validator,
-  ) {
-    final delay = Duration(milliseconds: 300 + index * 100);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FadeInUp(
-          delay: delay,
-          duration: Duration(milliseconds: 600),
-          child: Text(label, style: AppTextStyles.body),
-        ),
-        SizedBox(height: 10.sp),
-        FadeInUp(
-          delay: delay + Duration(milliseconds: 100),
-          duration: Duration(milliseconds: 600),
-          child: Obx(
-            () => TextFieldWidgets(
-              controller: textEditingController,
-              hint: '***********',
-              autofillHints: autofillHints,
-              obscureText: controller.obscureText.value,
-              textInputAction: textInputAction,
-              validator: validator,
-              suffixIcon: IconButton(
-                icon: SvgPicture.asset(
-                  controller.obscureText.value
-                      ? AppSvg.eyeslashSvg
-                      : AppSvg.eyeSvg,
-                  color: Color(0xFF757575),
-                  width: 24.w,
-                  height: 24.h,
-                ),
-                onPressed: () {
-                  controller.obscureText.value = !controller.obscureText.value;
-                },
-              ),
-            ),
+class _SignInBody extends StatefulWidget {
+  const _SignInBody();
+
+  @override
+  State<_SignInBody> createState() => _SignInBodyState();
+}
+
+class _SignInBodyState extends State<_SignInBody> {
+  final _nav = sl<AppNavigator>();
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<SignInCubit>().signIn(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+    }
+  }
+
+  void _onStateChanged(BuildContext context, SignInState state) {
+    switch (state.status) {
+      case SignInStatus.success:
+        _nav.offAllToHome();
+        break;
+      case SignInStatus.failure:
+        showCustomSnackBar(context, state.errorMessage, SnackBarType.error);
+        break;
+      case SignInStatus.googleAwaitingType:
+        showGoogleTypePopup(
+          context,
+          (type) => context.read<SignInCubit>().completeGoogleSignIn(type),
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthScaffold(
+      formKey: _formKey,
+      scrollable: true,
+      header: Column(
+        children: [
+          Center(child: Image.asset(AppImage.logoImage)),
+          SizedBox(height: 56.h),
+          SignUpPromptWidget(
+            title: 'dont_Have_An_account'.tr,
+            btuTitle: 'sign_up_now'.tr,
+            onTap: _nav.toSignUp,
           ),
-        ),
-      ],
+        ],
+      ),
+      child: BlocConsumer<SignInCubit, SignInState>(
+        listener: _onStateChanged,
+        builder: (context, state) {
+          final cubit = context.read<SignInCubit>();
+          final isLoading = state.status == SignInStatus.loading ||
+              state.status == SignInStatus.googleLoading;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AutofillGroup(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AuthTextField(
+                      label: 'email'.tr,
+                      hint: 'AreistoSpace@gmail.com',
+                      iconAsset: AppSvg.smsSvg,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      controller: _emailController,
+                      validator: Validators.email,
+                    ),
+                    AuthPasswordField(
+                      label: 'password'.tr,
+                      controller: _passwordController,
+                      obscure: state.obscurePassword,
+                      onToggle: cubit.togglePasswordVisibility,
+                      autofillHints: const [AutofillHints.password],
+                      validator: (value) =>
+                          Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 8.h),
+              RememberMeAndForgotPasswordWidget(
+                isChecked: state.rememberMe,
+                onChanged: (value) => cubit.toggleRememberMe(value ?? false),
+                onForgotPassword: _nav.toResetPassword,
+              ),
+              SizedBox(height: 16.h),
+              if (isLoading)
+                const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              else
+                ButtonLoginWidget(text: 'login'.tr, onTap: _submit),
+              SizedBox(height: 16.h),
+              const OrDividerWidget(),
+              SizedBox(height: 16.h),
+              ButtonWithGoogleWidget(onTap: cubit.startGoogleSignIn),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:get/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart'; // Import animate_do
 import 'package:intl/intl.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/features/all_space/presentation/widgets/all_item_space_widget.dart';
 import 'package:workspace/features/details_space/data/model/details_space_model.dart';
-import 'package:workspace/utils/routing.dart';
 
 class DescriptionWidget extends StatelessWidget {
   final String? text;
@@ -65,23 +64,47 @@ class DescriptionWidget extends StatelessWidget {
             },
           ),
         ),
-        SizedBox(height: suggestSpaces.isNotEmpty ? 8.h : 0.h),
-
-        // Animated section title
-        suggestSpaces.isNotEmpty
-            ? SlideInUp(
-                duration: Duration(milliseconds: 700),
-                child: Text(
-                  'المساحات المقترحة',
-                  style: GoogleFonts.tajawal(
-                    color: const Color(0xFF212121),
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+        // فاصل بصري واضح يفصل قسم المساحات المقترحة عن محتوى المساحة الحالية
+        if (suggestSpaces.isNotEmpty) ...[
+          SizedBox(height: 28.h),
+          Container(height: 6.h, color: const Color(0xFFF5F5F5)),
+          SizedBox(height: 20.h),
+          Row(
+            children: [
+              Container(
+                width: 4.w,
+                height: 20.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF32B599),
+                  borderRadius: BorderRadius.circular(4.r),
                 ),
-              )
-            : SizedBox.shrink(),
-        SizedBox(height: suggestSpaces.isNotEmpty ? 24.h : 0.h),
+              ),
+              SizedBox(width: 8.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'مساحات قد تعجبك',
+                    style: GoogleFonts.tajawal(
+                      color: const Color(0xFF212121),
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'اقتراحات مشابهة لمساحات أخرى',
+                    style: GoogleFonts.tajawal(
+                      color: const Color(0xFF9E9E9E),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+        ],
 
         // Animated widget for AllItemSpaceWidget
 
@@ -91,11 +114,7 @@ class DescriptionWidget extends StatelessWidget {
             itemBuilder: (context, index) => SlideInUp(
                   duration: Duration(milliseconds: 800),
                   child: AllItemSpaceWidget(
-                    onTap: () => Get.offNamedUntil(
-                      AppRouting.detailsView,
-                      (route) => route.settings.name == AppRouting.btnNavView,
-                      arguments: suggestSpaces[index].id!,
-                    ),
+                    onTap: () => sl<AppNavigator>().replaceToDetails(suggestSpaces[index].id!),
                     id: suggestSpaces[index].id!,
                     address: suggestSpaces[index].address ?? '',
                     available:

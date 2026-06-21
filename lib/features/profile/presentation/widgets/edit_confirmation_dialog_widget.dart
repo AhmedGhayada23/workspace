@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditConfirmationDialog extends StatelessWidget {
@@ -74,8 +73,8 @@ class EditConfirmationDialog extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () {
+                      Navigator.of(context).pop();
                       onConfirm();
-                      Get.back();
                     },
                     child: Center(
                       child: 
@@ -100,7 +99,7 @@ class EditConfirmationDialog extends StatelessWidget {
                 ),
                 Expanded(
                   child: InkWell(
-                    onTap: () => Get.back(),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Center(
                       child:Text(
   'الغاء',

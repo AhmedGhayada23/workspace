@@ -1,100 +1,150 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
-import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/core/theme/text_styles.dart';
-import 'package:workspace/core/widgets/text_field_widget.dart';
-import 'package:workspace/features/profile/controllers/change_password_controller.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_password_field.dart';
+import 'package:workspace/features/profile/presentation/cubit/change_password/change_password_cubit.dart';
 import 'package:workspace/utils/validators.dart';
 
-class ChangePasswordView extends GetView<ChangepasswordPageController> {
+class ChangePasswordView extends StatelessWidget {
   const ChangePasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<ChangePasswordCubit>(),
+      child: const _ChangePasswordBody(),
+    );
+  }
+}
 
+class _ChangePasswordBody extends StatefulWidget {
+  const _ChangePasswordBody();
+
+  @override
+  State<_ChangePasswordBody> createState() => _ChangePasswordBodyState();
+}
+
+class _ChangePasswordBodyState extends State<_ChangePasswordBody> {
+  final _formKey = GlobalKey<FormState>();
+  final _oldController = TextEditingController();
+  final _newController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  @override
+  void dispose() {
+    _oldController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<ChangePasswordCubit>().submit(
+            oldPassword: _oldController.text,
+            newPassword: _newController.text,
+            confirmPassword: _confirmController.text,
+          );
+    }
+  }
+
+  void _onState(BuildContext context, ChangePasswordState state) {
+    if (state.status == ChangePasswordStatus.success) {
+      _oldController.clear();
+      _newController.clear();
+      _confirmController.clear();
+      showCustomSnackBar(context, state.message, SnackBarType.success);
+      context.read<ChangePasswordCubit>().clearStatus();
+    } else if (state.status == ChangePasswordStatus.failure) {
+      showCustomSnackBar(context, state.message, SnackBarType.error);
+      context.read<ChangePasswordCubit>().clearStatus();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        leading: IconButton(onPressed: () => Get.back(), icon: Icon(Icons.arrow_back, size: 24.r)),
+        leading: IconButton(
+          onPressed: sl<AppNavigator>().back,
+          icon: Icon(Icons.arrow_back, size: 24.r),
+        ),
         centerTitle: true,
         title: Text(
           'كلمة المرور',
-          textAlign: TextAlign.right,
           style: GoogleFonts.tajawal(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF212121),
+            color: const Color(0xFF212121),
           ),
         ),
       ),
       body: Form(
-        key: controller.changePasswordFormKey,
+        key: _formKey,
         child: Padding(
           padding: EdgeInsets.all(24.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _animatedPasswordField(
-                1,
-                'كلمة المرور الحالية',
-                controller.obscureTextold,
-                [AutofillHints.password],
-                TextInputAction.next,
-                controller.oldPasswordChangePasswordTextEditingController,
-                (value) => Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
-              ),
-
-              _animatedPasswordField(
-                2,
-                'كلمة المرور الجديدة',
-                controller.obscureTextnew,
-                [AutofillHints.password],
-                TextInputAction.next,
-                controller.newPasswordChangePasswordTextEditingController,
-                (value) => Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
-              ),
-              _animatedPasswordField(
-                3,
-                'تاكيد كلمة المرور',
-                controller.obscureTextcon,
-                [AutofillHints.password],
-                TextInputAction.next,
-                controller.conPasswordChangePasswordTextEditingController,
-                (value) => Validators.match(
-                  value,
-                  controller.newPasswordChangePasswordTextEditingController.text,
-                  fieldName: 'تأكيد كلمة المرور',
-                ),
-              ),
-
-              SizedBox(height: 22.h),
-              Obx(
-                ()=> controller.loading.isTrue ? Center(
-                                      child: CircularProgressIndicator(color: AppColors.primary),
-                                    ) : ZoomIn(
-                  duration: Duration(milliseconds: 500),
-                  child: InkWell(
-                    onTap: () => controller.submitChangePassword(),
-                    child: Center(
-                      child: Container(
-                        height: 44.h,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF32B599),
-                          borderRadius: BorderRadius.circular(50.r),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
+          child: BlocConsumer<ChangePasswordCubit, ChangePasswordState>(
+            listener: _onState,
+            builder: (context, state) {
+              final cubit = context.read<ChangePasswordCubit>();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AuthPasswordField(
+                    label: 'كلمة المرور الحالية',
+                    controller: _oldController,
+                    obscure: state.obscureOld,
+                    onToggle: cubit.toggleOld,
+                    autofillHints: const [AutofillHints.password],
+                    textInputAction: TextInputAction.next,
+                    validator: (value) =>
+                        Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
+                  ),
+                  AuthPasswordField(
+                    label: 'كلمة المرور الجديدة',
+                    controller: _newController,
+                    obscure: state.obscureNew,
+                    onToggle: cubit.toggleNew,
+                    autofillHints: const [AutofillHints.password],
+                    textInputAction: TextInputAction.next,
+                    validator: (value) =>
+                        Validators.minLength(value, 6, fieldName: 'كلمة المرور'),
+                  ),
+                  AuthPasswordField(
+                    label: 'تاكيد كلمة المرور',
+                    controller: _confirmController,
+                    obscure: state.obscureConfirm,
+                    onToggle: cubit.toggleConfirm,
+                    autofillHints: const [AutofillHints.password],
+                    validator: (value) => Validators.match(
+                      value,
+                      _newController.text,
+                      fieldName: 'تأكيد كلمة المرور',
+                    ),
+                  ),
+                  SizedBox(height: 22.h),
+                  if (state.status == ChangePasswordStatus.loading)
+                    const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  else
+                    Center(
+                      child: InkWell(
+                        onTap: _submit,
+                        child: Container(
+                          height: 44.h,
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF32B599),
+                            borderRadius: BorderRadius.circular(50.r),
+                          ),
+                          child: Center(
+                            child: Text(
                               'تغيير كلمة المرور',
                               style: GoogleFonts.tajawal(
                                 color: Colors.white,
@@ -102,70 +152,16 @@ class ChangePasswordView extends GetView<ChangepasswordPageController> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ),
       ),
-    );
-  }
-
-  Widget _animatedPasswordField(
-    int index,
-    String label,
-    RxBool obscureText,
-    Iterable<String>? autofillHints,
-    TextInputAction textInputAction,
-    TextEditingController? textEditingController,
-    String? Function(String?)? validator,
-  ) {
-    final delay = Duration(milliseconds: 300 + index * 100);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FadeInUp(
-          delay: delay,
-          duration: Duration(milliseconds: 600),
-          child: Text(label, style: AppTextStyles.body),
-        ),
-        SizedBox(height: 10.sp),
-        FadeInUp(
-          delay: delay + Duration(milliseconds: 100),
-          duration: Duration(milliseconds: 600),
-          child: Obx(
-            () => TextFieldWidgets(
-              controller: textEditingController,
-              hint: '***********',
-              obscureText: obscureText.value,
-              autofillHints: autofillHints,
-              textInputAction: textInputAction,
-              validator: validator,
-              suffixIcon: IconButton(
-                icon:
-                    SvgPicture.asset(
-                      obscureText.value
-                        ?
-                          AppSvg.eyeslashSvg : AppSvg.eyeSvg,
-                          color: Color(0xFF757575),
-                          width: 24.w,
-                          height: 24.h,
-                        ),
-
-                onPressed: () {
-                  obscureText.value = !obscureText.value;
-                },
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 12.h),
-      ],
     );
   }
 }

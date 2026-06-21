@@ -333,10 +333,11 @@ class Intervals {
 class Status {
   int? id;
   String? name;
+  String? note;
   String? createdAt;
   String? updatedAt;
 
-  Status({this.id, this.name, this.createdAt, this.updatedAt});
+  Status({this.id, this.name, this.note, this.createdAt, this.updatedAt});
 
   Status.fromJson(Map<String, dynamic> json) {
     if (json["id"] is int) {
@@ -344,6 +345,9 @@ class Status {
     }
     if (json["name"] is String) {
       name = json["name"];
+    }
+    if (json["note"] is String) {
+      note = json["note"];
     }
     if (json["created_at"] is String) {
       createdAt = json["created_at"];
@@ -361,6 +365,7 @@ class Status {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["id"] = id;
     data["name"] = name;
+    data["note"] = note;
     data["created_at"] = createdAt;
     data["updated_at"] = updatedAt;
     return data;

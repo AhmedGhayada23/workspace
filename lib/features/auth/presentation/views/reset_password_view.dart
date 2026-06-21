@@ -1,189 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:workspace/core/di/injection_container.dart';
+import 'package:workspace/core/localization/app_tr.dart';
+import 'package:workspace/core/message/message_snack_bar.dart';
+import 'package:workspace/core/navigation/app_navigator.dart';
 import 'package:workspace/core/styles/app_colors.dart';
 import 'package:workspace/core/styles/app_image.dart';
-import 'package:workspace/core/theme/text_styles.dart';
-import 'package:workspace/features/auth/controllers/reset_password_controller.dart';
+import 'package:workspace/features/auth/presentation/cubit/reset_password/reset_password_cubit.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_icon_badge.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_info_header.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_logo_header.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_scaffold.dart';
+import 'package:workspace/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:workspace/features/auth/presentation/widgets/button_login_widget.dart';
 import 'package:workspace/features/auth/presentation/widgets/remember_password_login_btn_widgt.dart';
-import 'package:workspace/core/widgets/text_field_widget.dart';
-import 'package:workspace/utils/routing.dart';
 import 'package:workspace/utils/validators.dart';
 
-class ResetPasswordView extends GetView<ResetPasswordController> {
+class ResetPasswordView extends StatelessWidget {
   const ResetPasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: Form(
-      key: controller.formResetPasswordKey,
-        child: Container(
-          color: AppColors.primary,
-          child: Column(
-            children: [
-              SizedBox(height: 45.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FadeInLeft(
-                      child: IconButton(
-                        onPressed: () => Get.offNamed(AppRouting.signInView),
-                        icon: Icon(Icons.arrow_back_rounded, color: AppColors.white, size: 24.r),
-                      ),
-                    ),
-                    FadeInRight(
-                      child: Center(
-                  child: Image.asset(AppImage.logoImage),
-                ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24.h),
-              FadeIn(
-                child: Container(
-                  height: 16.h,
-                  margin: EdgeInsets.symmetric(horizontal: 35.w),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(20, 255, 255, 255),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24.r),
-                      topRight: Radius.circular(24.r),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: FadeInUp(
-                  duration: const Duration(milliseconds: 600),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24.r),
-                        topRight: Radius.circular(24.r),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.h, vertical: 32.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: ZoomIn(
-                              duration: const Duration(milliseconds: 600),
-                              child: Container(
-                                height: 60.h,
-                                width: 60.w,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24.r),
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topRight,
-                                    end: Alignment.bottomLeft,
-                                    colors: [
-                                      Color.fromRGBO(50, 181, 153, 0.08),
-                                      Color.fromRGBO(91, 196, 173, 0.08),
-                                    ],
-                                  ),
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(AppSvg.vectorSvg),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 24.sp),
-                          FadeInDown(
-                            child: Center(
-                              child: Text(
-                                'استعادة كلمة المرور'.tr,
-                                style: GoogleFonts.tajawal(
-                                  color: AppColors.primary,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 4.sp),
-                          FadeInDown(
-                            delay: const Duration(milliseconds: 200),
-                            child: Center(
-                              child: Text(
-                                'ادخل البريد الالكتروني الخاص بك وسنقوم بارسال رمز التحقق لاعادة تعيين كلمة المرور الخاصة بك'.tr,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.tajawal(
-                                  color: const Color(0xFF616161),
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 32.sp),
-                          FadeIn(
-                            child: Text(
-                              'email'.tr,
-                              style: AppTextStyles.body,
-                            ),
-                          ),
-                          SizedBox(height: 10.sp),
-                          FadeInUp(
-                            delay: const Duration(milliseconds: 300),
-                            child: TextFieldWidgets(
-                              controller: controller.emailResetPasswordTextEditingController,
-                              keyboardType: TextInputType.emailAddress,
-                              autofillHints: [AutofillHints.email],
-                              textInputAction: TextInputAction.done,
-                              hint: 'AreistoSpace@gmail.com',
-                              validator: Validators.email,
-                              icon: IconButton(
-                                onPressed: () {},
-                                icon: SvgPicture.asset(
-                                  AppSvg.smsSvg,
-                                  width: 24.w,
-                                  height: 24.h,
-                                  color: const Color(0xFF757575),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 24.sp),
-                          Obx(
-                            ()=> controller.loading.isTrue ?
-                            Center(
-                                      child: CircularProgressIndicator(color: AppColors.primary),
-                                    )
-                            : BounceInUp(
-                              delay: const Duration(milliseconds: 400),
-                              child: ButtonLoginWidget(
-                                text: 'ارسل رمز التحقق'.tr,
-                                onTap: () =>controller.submitResetPassword(),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          FadeInUp(
-                            delay: const Duration(milliseconds: 500),
-                            child: RememberPasswordAndLoginButtonWidgt(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return BlocProvider(
+      create: (_) => sl<ResetPasswordCubit>(),
+      child: const _ResetPasswordBody(),
+    );
+  }
+}
+
+class _ResetPasswordBody extends StatefulWidget {
+  const _ResetPasswordBody();
+
+  @override
+  State<_ResetPasswordBody> createState() => _ResetPasswordBodyState();
+}
+
+class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
+  final _nav = sl<AppNavigator>();
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      context.read<ResetPasswordCubit>().sendCode(_emailController.text);
+    }
+  }
+
+  void _onStateChanged(BuildContext context, ResetPasswordState state) {
+    if (state.status == ResetPasswordStatus.success) {
+      _nav.toOtp(email: _emailController.text, isNewAccount: false);
+    } else if (state.status == ResetPasswordStatus.failure) {
+      showCustomSnackBar(context, state.errorMessage, SnackBarType.error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthScaffold(
+      formKey: _formKey,
+      header: AuthLogoHeader(onBack: _nav.toSignIn),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AuthIconBadge(svgAsset: AppSvg.vectorSvg),
+          SizedBox(height: 24.sp),
+          AuthInfoHeader(
+            title: 'استعادة كلمة المرور'.tr,
+            subtitle:
+                'ادخل البريد الالكتروني الخاص بك وسنقوم بارسال رمز التحقق لاعادة تعيين كلمة المرور الخاصة بك'.tr,
           ),
-        ),
+          SizedBox(height: 32.sp),
+          AuthTextField(
+            label: 'email'.tr,
+            hint: 'AreistoSpace@gmail.com',
+            iconAsset: AppSvg.smsSvg,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            textInputAction: TextInputAction.done,
+            controller: _emailController,
+            validator: Validators.email,
+          ),
+          SizedBox(height: 12.sp),
+          BlocConsumer<ResetPasswordCubit, ResetPasswordState>(
+            listener: _onStateChanged,
+            builder: (context, state) {
+              if (state.status == ResetPasswordStatus.loading) {
+                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+              }
+              return ButtonLoginWidget(text: 'ارسل رمز التحقق'.tr, onTap: _submit);
+            },
+          ),
+          const Spacer(),
+          RememberPasswordAndLoginButtonWidgt(onLogin: _nav.toSignIn),
+        ],
       ),
     );
   }

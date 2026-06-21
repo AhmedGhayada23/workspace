@@ -7,22 +7,19 @@ import 'package:workspace/core/styles/app_image.dart';
 
 class NoResult extends StatelessWidget {
   final String text;
-  const NoResult({super.key,
-  this.text = 'لم نتمكن من العثور على أي نتيجة',
+  const NoResult({
+    super.key,
+    this.text = 'لم نتمكن من العثور على أي نتيجة',
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FadeInUp(
-          delay: Duration(milliseconds: 300),
-          child: SvgPicture.asset(AppSvg.noSearchSvg),
-        ),
-        SizedBox(height: 16.h),
-        FadeInUp(
-          delay: Duration(milliseconds: 600),
-          child: Text(
+    return ZoomIn(
+      child: Column(
+        children: [
+          SvgPicture.asset(AppSvg.noSearchSvg),
+          SizedBox(height: 16.h),
+          Text(
             text,
             textAlign: TextAlign.center,
             style: GoogleFonts.tajawal(
@@ -32,8 +29,8 @@ class NoResult extends StatelessWidget {
               fontStyle: FontStyle.normal,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
