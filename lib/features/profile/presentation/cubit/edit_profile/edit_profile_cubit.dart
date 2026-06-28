@@ -41,6 +41,9 @@ class EditProfileCubit extends Cubit<EditProfileState> {
     emit(state.copyWith(filePaths: list));
   }
 
+  /// الحد الأقصى لحجم المستند (1 ميجابايت).
+  static const int _maxFileBytes = 1024 * 1024;
+
   Future<void> addPdf() async {
     // FileType.any يفتح مُنتقي المستندات/الملفات (لا معرض الصور) على أندرويد،
     // ثم نتحقّق يدوياً أن الملف PDF فقط.
@@ -50,13 +53,21 @@ class EditProfileCubit extends Cubit<EditProfileState> {
     final isPdf = (file.extension ?? '').toLowerCase() == 'pdf' ||
         (file.path ?? '').toLowerCase().endsWith('.pdf');
     if (!isPdf) {
-      emit(state.copyWith(submitStatus: SubmitStatus.failure, message: 'يُسمح بملفات PDF فقط'));
-      emit(state.copyWith(submitStatus: SubmitStatus.idle));
+      _showError('يُسمح بملفات PDF فقط');
+      return;
+    }
+    if (file.size > _maxFileBytes) {
+      _showError('حجم الملف يجب ألا يزيد عن 1 ميجابايت');
       return;
     }
     if (file.path != null) {
       emit(state.copyWith(filePaths: [...state.filePaths, file.path!]));
     }
+  }
+
+  void _showError(String message) {
+    emit(state.copyWith(submitStatus: SubmitStatus.failure, message: message));
+    emit(state.copyWith(submitStatus: SubmitStatus.idle));
   }
 
   Future<void> submit({

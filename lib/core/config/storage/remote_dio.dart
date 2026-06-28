@@ -6,12 +6,16 @@ import 'package:workspace/core/config/storage/dio_exceptions.dart';
 import 'package:workspace/core/config/storage/local_storage.dart';
 import 'package:workspace/core/message/message_snack_bar.dart';
 import 'package:workspace/core/navigation/app_router.dart';
+import 'package:workspace/core/services/session_manager.dart';
 import 'package:workspace/utils/routing.dart';
 
 class RemoteConnectionDio {
   late Dio _dio;
 
   static RemoteConnectionDio? _instance;
+
+  /// يمنع معالجة 401 أكثر من مرة عند فشل عدّة طلبات دفعةً واحدة.
+  static bool _sessionExpiredHandled = false;
 
   RemoteConnectionDio._() {
     _dio = Dio(
@@ -40,19 +44,25 @@ class RemoteConnectionDio {
           log(e.toString());
 
           if (e.statusCode == 401) {
-            LocalStorage().removeKey(Constants.token);
-            // تنفيذ إجراء عند ظهور 401
-            log('Unauthorized - 401');
-            navigatorKey.currentState?.pushNamedAndRemoveUntil(
-              AppRouting.signInView,
-              (_) => false,
-              arguments: const RouteArgs(),
-            );
-            showCustomSnackBar(
-              navigatorKey.currentContext!,
-              'انتهت الجسلة يرجى تسجيل الدخول مجددًا',
-              SnackBarType.warning,
-            );
+            // تُعالَج مرة واحدة فقط مهما تعدّدت الطلبات الفاشلة بـ 401.
+            if (!_sessionExpiredHandled) {
+              _sessionExpiredHandled = true;
+              log('Unauthorized - 401');
+              SessionManager.clear();
+              navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                AppRouting.signInView,
+                (_) => false,
+                arguments: const RouteArgs(),
+              );
+              showCustomSnackBar(
+                navigatorKey.currentContext!,
+                'انتهت الجسلة يرجى تسجيل الدخول مجددًا',
+                SnackBarType.warning,
+              );
+            }
+          } else if (e.statusCode != null && e.statusCode! >= 200 && e.statusCode! < 300) {
+            // استجابة ناجحة (جلسة صالحة) → نسمح بمعالجة 401 لاحقاً من جديد.
+            _sessionExpiredHandled = false;
           }
 
           handler.next(e);

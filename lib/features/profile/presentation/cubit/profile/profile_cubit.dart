@@ -28,6 +28,9 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (state.status == ProfileStatus.initial) await load();
   }
 
+  /// تصفير الحالة (عند انتهاء الجلسة) لمسح بيانات الحساب الحالي.
+  void reset() => emit(const ProfileState());
+
   Future<void> logout() async {
     emit(state.copyWith(loggingOut: true));
     final result = await logoutUseCase(const NoParams());

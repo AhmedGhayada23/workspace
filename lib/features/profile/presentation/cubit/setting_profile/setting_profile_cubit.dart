@@ -37,14 +37,30 @@ class SettingProfileCubit extends Cubit<SettingProfileState> {
 
   void setType(String serverType) => emit(state.copyWith(type: serverType));
 
+  /// الحد الأقصى لحجم صورة الحساب (1 ميجابايت).
+  static const int _maxImageBytes = 1024 * 1024;
+
   Future<void> pickFromCamera() async {
-    final picked = await _picker.pickImage(source: ImageSource.camera);
-    if (picked != null) emit(state.copyWith(imagePath: picked.path, imageDeleted: false));
+    await _setImage(await _picker.pickImage(source: ImageSource.camera));
   }
 
   Future<void> pickFromGallery() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) emit(state.copyWith(imagePath: picked.path, imageDeleted: false));
+    await _setImage(await _picker.pickImage(source: ImageSource.gallery));
+  }
+
+  /// يضبط الصورة المختارة بعد التحقّق من ألا يتجاوز حجمها 1 ميجابايت.
+  Future<void> _setImage(XFile? picked) async {
+    if (picked == null) return;
+    final bytes = await picked.length();
+    if (bytes > _maxImageBytes) {
+      emit(state.copyWith(
+        submitStatus: SubmitStatus.failure,
+        message: 'حجم الصورة يجب ألا يزيد عن 1 ميجابايت',
+      ));
+      emit(state.copyWith(submitStatus: SubmitStatus.idle));
+      return;
+    }
+    emit(state.copyWith(imagePath: picked.path, imageDeleted: false));
   }
 
   /// حذف الصورة: نمسح المحلية والشبكية (للعرض) ونعلّم بالحذف ليُرسَل image='' عند الحفظ.
